@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import QuickActions from "../../components/dashboard/QuickActions";
-import LogoutButton from "../../components/auth/LogoutButton";
 
 import { useAuth } from "../../hooks/useAuth";
 import { getProfile } from "../../services/profile";
@@ -64,12 +63,6 @@ function Member() {
           <p className="mt-3 text-gray-500">
             Here's a quick overview of your account.
           </p>
-
-        </div>
-
-        <div className="w-full lg:w-auto">
-
-          <LogoutButton />
 
         </div>
 
