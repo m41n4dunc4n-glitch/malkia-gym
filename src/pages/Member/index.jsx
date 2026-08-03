@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import QuickActions from "../../components/dashboard/QuickActions";
 
+
 import { useAuth } from "../../hooks/useAuth";
 import { getProfile } from "../../services/profile";
 
@@ -65,6 +66,8 @@ function Member() {
           </p>
 
         </div>
+
+        
 
       </div>
 

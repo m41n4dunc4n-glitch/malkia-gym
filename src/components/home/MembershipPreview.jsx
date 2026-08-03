@@ -1,44 +1,40 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getPlans } from "../../services/membershipPlans";
 
 function MembershipPreview() {
-  const plans = [
-    {
-      name: "Basic",
-      price: "KSh 3,000",
-      features: [
-        "Gym Access",
-        "Locker Access",
-        "Basic Fitness Assessment",
-        "Community Support",
-      ],
-      featured: false,
-    },
-    {
-      name: "Premium",
-      price: "KSh 5,000",
-      features: [
-        "Everything in Basic",
-        "Personal Trainer",
-        "Nutrition Guidance",
-        "Unlimited Classes",
-      ],
-      featured: true,
-    },
-    {
-      name: "VIP",
-      price: "KSh 8,000",
-      features: [
-        "Everything in Premium",
-        "Priority Booking",
-        "Private Sessions",
-        "VIP Lounge Access",
-      ],
-      featured: false,
-    },
-  ];
+  const [plans, setPlans] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadPlans() {
+      const { data } = await getPlans();
+
+      if (isMounted) {
+        setPlans(data || []);
+      }
+    }
+
+    loadPlans();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  function getFeatures(description) {
+    if (!description) return [];
+
+    return description
+      .split(/[\n•,]/)
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+  }
 
   return (
     <section className="bg-white py-16 sm:py-20 lg:py-24">
+
       <div className="mx-auto max-w-7xl px-6 sm:px-8">
 
         <div className="mb-14 text-center">
@@ -59,61 +55,71 @@ function MembershipPreview() {
 
         <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
 
-          {plans.map((plan, index) => (
+          {plans.slice(0, 3).map((plan, index) => {
 
-            <div
-              key={index}
-              className={`flex h-full flex-col rounded-3xl p-8 shadow-xl transition duration-300 hover:-translate-y-2 ${
-                plan.featured
-                  ? "bg-pink-600 text-white xl:scale-105"
-                  : "bg-black text-white"
-              }`}
-            >
+            const features = getFeatures(plan.description);
 
-              <h3 className="text-3xl font-bold">
-                {plan.name}
-              </h3>
+            return (
 
-              <p className="mt-5 text-4xl font-extrabold lg:text-5xl">
-                {plan.price}
-              </p>
-
-              <span className="text-sm opacity-80">
-                Per Month
-              </span>
-
-              <ul className="mt-8 grow space-y-4">
-
-                {plan.features.map((feature, i) => (
-
-                  <li
-                    key={i}
-                    className="flex items-start gap-3"
-                  >
-                    <span>✔</span>
-
-                    <span>{feature}</span>
-
-                  </li>
-
-                ))}
-
-              </ul>
-
-              <Link
-                to="/register"
-                className={`mt-10 rounded-xl py-4 text-center font-semibold transition ${
-                  plan.featured
-                    ? "bg-white text-pink-600 hover:bg-gray-100"
-                    : "bg-pink-600 text-white hover:bg-pink-700"
+              <div
+                key={plan.id}
+                className={`flex flex-col rounded-3xl p-8 shadow-xl transition duration-300 hover:-translate-y-2 ${
+                  index === Math.min(1, plans.length - 1)
+                    ? "bg-pink-600 text-white xl:scale-105"
+                    : "bg-black text-white"
                 }`}
               >
-                Join Now
-              </Link>
 
-            </div>
+                <h3 className="text-3xl font-bold">
+                  {plan.name}
+                </h3>
 
-          ))}
+                <p className="mt-5 text-4xl font-extrabold lg:text-5xl">
+                  KSh {Number(plan.price).toLocaleString()}
+                </p>
+
+                <span className="text-sm opacity-80">
+                  {plan.duration} Days
+                </span>
+
+                <ul className="mt-8 grow space-y-3">
+
+                  {features.map((feature, i) => (
+
+                    <li
+                      key={i}
+                      className="flex items-start gap-3"
+                    >
+
+                      <span className="mt-1">
+                        ✔
+                      </span>
+
+                      <span>
+                        {feature}
+                      </span>
+
+                    </li>
+
+                  ))}
+
+                </ul>
+
+                <Link
+                  to="/membership"
+                  className={`mt-10 rounded-xl py-4 text-center font-semibold transition ${
+                    index === Math.min(1, plans.length - 1)
+                      ? "bg-white text-pink-600 hover:bg-gray-100"
+                      : "bg-pink-600 text-white hover:bg-pink-700"
+                  }`}
+                >
+                  View Plan
+                </Link>
+
+              </div>
+
+            );
+          })}
 
         </div>
 
@@ -129,6 +135,7 @@ function MembershipPreview() {
         </div>
 
       </div>
+
     </section>
   );
 }

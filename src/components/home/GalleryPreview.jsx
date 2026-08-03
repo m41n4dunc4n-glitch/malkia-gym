@@ -1,15 +1,27 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getGalleryImages } from "../../services/gallery";
 
 function GalleryPreview() {
+  const [images, setImages] = useState([]);
 
-  const images = [
-    "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800",
-    "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800",
-    "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800",
-    "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=800",
-    "https://images.unsplash.com/photo-1549570652-97324981a6fd?w=800",
-    "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=800",
-  ];
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadImages() {
+      const { data } = await getGalleryImages();
+
+      if (mounted) {
+        setImages(data || []);
+      }
+    }
+
+    loadImages();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <section className="bg-white py-16 sm:py-20 lg:py-24">
@@ -27,23 +39,24 @@ function GalleryPreview() {
           </h2>
 
           <p className="mx-auto mt-6 max-w-3xl text-base leading-8 text-gray-600 sm:text-lg">
-            Take a glimpse into the Malkia experience—from intense workouts to inspiring transformations and a supportive community.
+            Take a glimpse into the Malkia experience—from intense workouts to
+            inspiring transformations and a supportive community.
           </p>
 
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
 
-          {images.map((image, index) => (
+          {images.slice(0, 3).map((image) => (
 
             <div
-              key={index}
+              key={image.id}
               className="group overflow-hidden rounded-3xl shadow-lg"
             >
 
               <img
-                src={image}
-                alt={`Gallery ${index + 1}`}
+                src={image.image_url}
+                alt={image.caption || "Gallery Image"}
                 className="h-64 w-full object-cover transition duration-500 group-hover:scale-110 sm:h-72"
               />
 
@@ -52,6 +65,14 @@ function GalleryPreview() {
           ))}
 
         </div>
+
+        {images.length === 0 && (
+
+          <div className="py-16 text-center text-gray-500">
+            No gallery images available.
+          </div>
+
+        )}
 
         <div className="mt-14 text-center">
 

@@ -1,30 +1,43 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getTrainers } from "../../services/trainers";
 
 function TrainersPreview() {
-  const trainers = [
-    {
-      name: "Sarah Wanjiku",
-      specialty: "Strength Coach",
-      image:
-        "https://images.unsplash.com/photo-1594381898411-846e7d193883?w=500",
-    },
-    {
-      name: "Mercy Achieng",
-      specialty: "Weight Loss Specialist",
-      image:
-        "https://images.unsplash.com/photo-1611672585731-fa10603fb9e0?w=500",
-    },
-    {
-      name: "Grace Njeri",
-      specialty: "Yoga & Wellness",
-      image:
-        "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=500",
-    },
-  ];
+  const [trainers, setTrainers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadTrainers = async () => {
+      setLoading(true);
+
+      const { data, error } = await getTrainers();
+
+      if (!isActive) {
+        return;
+      }
+
+      if (error) {
+        console.error(error);
+        setLoading(false);
+        return;
+      }
+
+      // Only show first 3 trainers on the home page
+      setTrainers((data || []).slice(0, 3));
+      setLoading(false);
+    };
+
+    loadTrainers();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   return (
-    <section className="bg-black py-16 sm:py-20 lg:py-24 text-white">
-
+    <section className="bg-black py-16 text-white sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 sm:px-8">
 
         <div className="mb-14 text-center">
@@ -38,50 +51,70 @@ function TrainersPreview() {
           </h2>
 
           <p className="mx-auto mt-6 max-w-3xl text-base leading-8 text-gray-400 sm:text-lg">
-            Passionate professionals committed to helping every woman achieve her fitness goals.
+            Passionate professionals committed to helping every woman achieve
+            her fitness goals.
           </p>
 
         </div>
 
-        <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
+        {loading ? (
+          <div className="py-20 text-center">
+            <p className="text-lg">Loading trainers...</p>
+          </div>
+        ) : trainers.length === 0 ? (
+          <div className="py-20 text-center">
+            <p className="text-lg text-gray-400">
+              No trainers available.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
 
-          {trainers.map((trainer, index) => (
+            {trainers.map((trainer) => (
 
-            <div
-              key={index}
-              className="overflow-hidden rounded-3xl bg-zinc-900 shadow-xl transition duration-300 hover:-translate-y-2"
-            >
+              <div
+                key={trainer.id}
+                className="overflow-hidden rounded-3xl bg-zinc-900 shadow-xl transition duration-300 hover:-translate-y-2"
+              >
 
-              <img
-                src={trainer.image}
-                alt={trainer.name}
-                className="h-72 w-full object-cover sm:h-80 lg:h-96"
-              />
+                <img
+                  src={
+                    trainer.image_url ||
+                    "https://placehold.co/600x700?text=Trainer"
+                  }
+                  alt={trainer.name}
+                  className="h-72 w-full object-cover sm:h-80 lg:h-96"
+                />
 
-              <div className="p-8">
+                <div className="p-8">
 
-                <h3 className="text-2xl font-bold">
-                  {trainer.name}
-                </h3>
+                  <h3 className="text-2xl font-bold">
+                    {trainer.name}
+                  </h3>
 
-                <p className="mt-3 text-pink-500">
-                  {trainer.specialty}
-                </p>
+                  <p className="mt-3 text-pink-500">
+                    {trainer.specialty}
+                  </p>
 
-                <Link
-                  to="/trainers"
-                  className="mt-8 inline-block rounded-xl bg-pink-600 px-6 py-3 font-semibold transition hover:bg-pink-700"
-                >
-                  View Profile
-                </Link>
+                  <p className="mt-4 text-gray-400">
+                    {trainer.experience} Years Experience
+                  </p>
+
+                  <Link
+                    to="/trainers"
+                    className="mt-8 inline-block rounded-xl bg-pink-600 px-6 py-3 font-semibold transition hover:bg-pink-700"
+                  >
+                    View Profile
+                  </Link>
+
+                </div>
 
               </div>
 
-            </div>
+            ))}
 
-          ))}
-
-        </div>
+          </div>
+        )}
 
         <div className="mt-14 text-center">
 
@@ -95,7 +128,6 @@ function TrainersPreview() {
         </div>
 
       </div>
-
     </section>
   );
 }
