@@ -10,7 +10,6 @@ function Profile() {
   const [formData, setFormData] = useState({
     full_name: "",
     phone: "",
-    gender: "",
     date_of_birth: "",
     membership_name: "",
   });
@@ -25,7 +24,6 @@ function Profile() {
         setFormData({
           full_name: data.full_name || "",
           phone: data.phone || "",
-          gender: data.gender || "",
           date_of_birth: data.date_of_birth || "",
           membership_name: data.membership_name || "",
         });
@@ -110,24 +108,6 @@ function Profile() {
             onChange={handleChange}
             className="w-full rounded-xl border p-4"
           />
-        </div>
-
-        <div>
-          <label className="mb-2 block font-semibold">
-            Gender
-          </label>
-
-          <select
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            className="w-full rounded-xl border p-4"
-          >
-            <option value="">Select Gender</option>
-            <option>Female</option>
-            <option>Male</option>
-            <option>Prefer not to say</option>
-          </select>
         </div>
 
         <div>

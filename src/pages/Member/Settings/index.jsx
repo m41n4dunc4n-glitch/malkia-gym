@@ -1,7 +1,45 @@
 import { useState } from "react";
+import { changePassword } from "../../../services/memberSettings";
 
 function Settings() {
   const [notifications, setNotifications] = useState(true);
+
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleChangePassword() {
+    if (!password || !confirmPassword) {
+      alert("Please fill in both password fields.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    if (password.length < 6) {
+      alert("Password must be at least 6 characters.");
+      return;
+    }
+
+    setLoading(true);
+
+    const { error } = await changePassword(password);
+
+    setLoading(false);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert("Password changed successfully!");
+
+    setPassword("");
+    setConfirmPassword("");
+  }
 
   return (
     <div className="space-y-8">
@@ -25,7 +63,7 @@ function Settings() {
       <div className="rounded-3xl bg-white p-5 shadow md:p-8">
 
         <h2 className="mb-6 text-xl font-bold md:text-2xl">
-          Account
+          Change Password
         </h2>
 
         <div className="space-y-6">
@@ -39,6 +77,8 @@ function Settings() {
             <input
               type="password"
               placeholder="Enter new password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-xl border p-4 outline-none focus:border-pink-500"
             />
 
@@ -52,16 +92,21 @@ function Settings() {
 
             <input
               type="password"
-              placeholder="Confirm password"
+              placeholder="Confirm new password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full rounded-xl border p-4 outline-none focus:border-pink-500"
             />
 
           </div>
 
-          <button className="w-full rounded-xl bg-pink-600 py-4 font-semibold text-white transition hover:bg-pink-700 md:w-auto md:px-10">
-
-            Change Password
-
+          <button
+            type="button"
+            onClick={handleChangePassword}
+            disabled={loading}
+            className="w-full rounded-xl bg-pink-600 py-4 font-semibold text-white transition hover:bg-pink-700 disabled:opacity-50 md:w-auto md:px-10"
+          >
+            {loading ? "Updating..." : "Change Password"}
           </button>
 
         </div>
@@ -110,13 +155,14 @@ function Settings() {
         </h2>
 
         <p className="mb-6 text-gray-600">
-          Permanently delete your account. This action cannot be undone.
+          Account deletion will be available soon.
         </p>
 
-        <button className="w-full rounded-xl bg-red-600 py-4 font-semibold text-white transition hover:bg-red-700 md:w-auto md:px-10">
-
-          Delete Account
-
+        <button
+          disabled
+          className="w-full cursor-not-allowed rounded-xl bg-gray-400 py-4 font-semibold text-white md:w-auto md:px-10"
+        >
+          Delete Account (Coming Soon)
         </button>
 
       </div>

@@ -27,8 +27,15 @@ function Members() {
         ? "Suspended"
         : "Active";
 
-    const { error } =
-      await updateMemberStatus(member.id, newStatus);
+    const confirmed = window.confirm(
+      member.status === "Active"
+        ? `Suspend ${member.full_name}?`
+        : `Unsuspend ${member.full_name}?`
+    );
+
+    if (!confirmed) return;
+
+    const { error } = await updateMemberStatus(member.id, newStatus);
 
     if (!error) loadMembers();
   }
@@ -39,8 +46,7 @@ function Members() {
         ? "member"
         : "admin";
 
-    const { error } =
-      await changeRole(member.id, newRole);
+    const { error } = await changeRole(member.id, newRole);
 
     if (!error) loadMembers();
   }

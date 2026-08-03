@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   getAllBookings,
@@ -8,26 +8,33 @@ import {
 function Bookings() {
   const [bookings, setBookings] = useState([]);
 
-  async function loadBookings() {
+  const loadBookings = useCallback(async () => {
     const { data } = await getAllBookings();
     setBookings(data || []);
-  }
+  }, []);
 
   useEffect(() => {
-    let mounted = true;
+    let isMounted = true;
 
-    (async () => {
-      const { data } = await getAllBookings();
+    const syncBookings = async () => {
+      await loadBookings();
 
-      if (mounted) {
-        setBookings(data || []);
+      if (!isMounted) {
+        return;
       }
-    })();
+    };
+
+    syncBookings();
+
+    const interval = setInterval(() => {
+      syncBookings();
+    }, 10000);
 
     return () => {
-      mounted = false;
+      isMounted = false;
+      clearInterval(interval);
     };
-  }, []);
+  }, [loadBookings]);
 
   async function changeStatus(id, status) {
     const { error } = await updateBookingStatus(id, status);

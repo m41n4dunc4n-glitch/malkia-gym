@@ -6,7 +6,7 @@ export async function getProfile(id) {
     .from("profiles")
     .select(`
       *,
-      membership_plans (
+      membership_plans(
         id,
         name,
         price,

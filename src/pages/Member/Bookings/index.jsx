@@ -113,11 +113,11 @@ function Bookings() {
 
             {trainers.map((trainer) => (
               <option
-                key={trainer.id}
-                value={trainer.id}
-              >
-                {trainer.name}
-              </option>
+  key={trainer.id}
+  value={trainer.id}
+>
+  {trainer.name} — {trainer.specialty}
+</option>
             ))}
 
           </select>
@@ -136,7 +136,6 @@ function Bookings() {
               type="time"
               min="06:00"
               max="21:00"
-              step="1800"
               value={bookingTime}
               onChange={(e) => setBookingTime(e.target.value)}
               className="w-full rounded-xl border p-4 outline-none focus:border-pink-500"

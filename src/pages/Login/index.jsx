@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signIn } from "../../services/auth";
+import { supabase } from "../../services/supabase";
 import { getProfile } from "../../services/profile";
 
 function Login() {
@@ -26,6 +27,16 @@ function Login() {
       const { data: profile, error: profileError } = await getProfile(
         data.user.id
       );
+
+      if (profile.status === "Suspended") {
+  await supabase.auth.signOut();
+
+  alert(
+    "Your account has been suspended. \nPlease contact the gym administrator."
+  );
+
+  return;
+}
 
       if (profileError) {
         alert(profileError.message);
