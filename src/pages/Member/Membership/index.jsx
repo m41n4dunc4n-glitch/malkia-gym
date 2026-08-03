@@ -1,10 +1,20 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
+import { FaCheck } from "react-icons/fa";
 import {
   getMembershipPlans,
   chooseMembership,
 } from "../../../services/membership";
 import { getProfile } from "../../../services/profile";
+
+  function getFeatures(description) {
+    if (!description) return [];
+
+    return description
+      .split(/[\n•,]/)
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+  }
 
 function Membership() {
   const { user } = useAuth();
@@ -77,6 +87,7 @@ function Membership() {
         {plans.map((plan) => {
 
           const active = currentMembership === plan.id;
+          const features = getFeatures(plan.description);
 
           return (
 
@@ -101,9 +112,24 @@ function Membership() {
                 {plan.duration} Days
               </p>
 
-              <p className="mt-6 min-h-22.5 leading-7 text-gray-700">
-                {plan.description}
-              </p>
+              <ul className="mt-10 space-y-4">
+
+                    {features.map((feature, i) => (
+
+                      <li
+                        key={i}
+                        className="flex items-start gap-3"
+                      >
+
+                        <FaCheck className="mt-1 shrink-0" />
+
+                        <span>{feature}</span>
+
+                      </li>
+
+                    ))}
+
+                  </ul>
 
               <button
                 onClick={() => handleChoose(plan.id)}
