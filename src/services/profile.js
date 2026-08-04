@@ -30,7 +30,6 @@ export async function updateProfile(id, updates) {
     name,
     price,
     duration,
-    membership_started_at
   )
 `)
 .single();
