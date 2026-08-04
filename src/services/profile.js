@@ -22,15 +22,5 @@ export async function updateProfile(id, updates) {
   return await supabase
     .from("profiles")
     .update(updates)
-    .eq("id", id)
-    .select(`
-  *,
-  membership_plans(
-    id,
-    name,
-    price,
-    duration,
-  )
-`)
-.single();
+    .eq("id", id);
 }
