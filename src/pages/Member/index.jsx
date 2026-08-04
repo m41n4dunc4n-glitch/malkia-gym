@@ -38,31 +38,32 @@ function Member() {
     );
   }
 
-  let remainingDays = "-";
+  let remainingDays = 0;
+let expiryDate = "-";
 
-  if (
-    profile?.membership_plans &&
-    profile?.created_at
-  ) {
-    const start = new Date(profile.created_at);
+if (
+  profile?.membership_plans &&
+  profile?.membership_started_at
+) {
+  const start = new Date(profile.membership_started_at);
 
-    const expiry = new Date(start);
+  const expiry = new Date(start);
 
-    expiry.setDate(
-      expiry.getDate() +
-        profile.membership_plans.duration
-    );
+  expiry.setDate(
+    expiry.getDate() +
+      profile.membership_plans.duration
+  );
 
-    const today = new Date();
+  expiryDate = expiry.toLocaleDateString();
 
-    const diff = Math.ceil(
-      (expiry - today) /
+  remainingDays = Math.max(
+    0,
+    Math.ceil(
+      (expiry - new Date()) /
         (1000 * 60 * 60 * 24)
-    );
-
-    remainingDays =
-      diff > 0 ? `${diff} Days` : "Expired";
-  }
+    )
+  );
+}
 
   return (
     <div className="space-y-8">
@@ -84,30 +85,39 @@ function Member() {
 
       <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
 
-        <DashboardCard
-          title="Membership Plan"
-          value={
-            profile?.membership_plans?.name ||
-            "No Membership"
-          }
-        />
+  <DashboardCard
+    title="Membership"
+    value={
+      profile?.membership_plans?.name || "No Membership"
+    }
+  />
 
-        <DashboardCard
-          title="Remaining Days"
-          value={remainingDays}
-        />
+  <DashboardCard
+    title="Days Remaining"
+    value={
+      profile?.membership_plans
+        ? `${remainingDays} Days`
+        : "-"
+    }
+  />
 
-        <DashboardCard
-          title="Role"
-          value={profile?.role || "Member"}
-        />
+  <DashboardCard
+    title="Membership Status"
+    value={
+      profile?.membership_plans
+        ? remainingDays > 0
+          ? "Active"
+          : "Expired"
+        : "No Membership"
+    }
+  />
 
-        <DashboardCard
-          title="Email"
-          value={profile?.email}
-        />
+  <DashboardCard
+  title="Next Expiry"
+  value={expiryDate}
+/>
 
-      </div>
+</div>
 
       <QuickActions />
     </div>

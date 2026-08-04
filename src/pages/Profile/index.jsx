@@ -25,7 +25,7 @@ function Profile() {
           full_name: data.full_name || "",
           phone: data.phone || "",
           date_of_birth: data.date_of_birth || "",
-          membership_name: data.membership_name || "",
+          membership_name: data.membership_plans?.name || "No Membership",
         });
       }
 
@@ -42,16 +42,24 @@ function Profile() {
     });
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+async function handleSubmit(e) {
+  e.preventDefault();
 
-    const { error } = await updateProfile(user.id, formData);
+  const updates = {
+    full_name: formData.full_name,
+    phone: formData.phone,
+    date_of_birth: formData.date_of_birth,
+  };
 
-    if (!error) {
-      alert("Profile updated successfully!");
-    }
+  const { error } = await updateProfile(user.id, updates);
+
+  if (error) {
+    alert(error.message);
+    return;
   }
 
+  alert("Profile updated successfully!");
+}
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20 text-lg font-semibold">

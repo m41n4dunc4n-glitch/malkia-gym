@@ -23,6 +23,15 @@ export async function updateProfile(id, updates) {
     .from("profiles")
     .update(updates)
     .eq("id", id)
-    .select()
-    .single();
+    .select(`
+  *,
+  membership_plans(
+    id,
+    name,
+    price,
+    duration,
+    membership_started_at
+  )
+`)
+.single();
 }

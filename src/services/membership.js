@@ -12,6 +12,7 @@ export async function chooseMembership(userId, membershipId) {
     .from("profiles")
     .update({
       membership_id: membershipId,
+      membership_started_at: new Date().toISOString(),
     })
     .eq("id", userId);
 }

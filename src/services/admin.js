@@ -49,6 +49,8 @@ export async function updateMemberRole(id, role) {
 }
 
 export async function getAllBookings() {
+  const today = new Date().toISOString().split("T")[0];
+
   const response = await supabase
     .from("bookings")
     .select(`
@@ -64,9 +66,9 @@ export async function getAllBookings() {
         specialty
       )
     `)
-    .order("booking_date", { ascending: false });
-
-  console.log("ADMIN BOOKINGS:", response);
+    .gte("booking_date", today)
+    .order("booking_date", { ascending: true })
+    .order("booking_time", { ascending: true });
 
   return response;
 }
