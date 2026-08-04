@@ -1,17 +1,25 @@
 import { Link } from "react-router-dom";
-import heroImage from "../../assets/images/hero/hero.jpg";
+import heroVideo from "../../assets/videos/hero/video.mp4";
 
 function Hero() {
   return (
-    <section
-      className="relative mt-20 min-h-[calc(100vh-80px)] bg-cover bg-center"
-      style={{
-        backgroundImage: `url(${heroImage})`,
-      }}
-    >
+    <section className="relative mt-20 min-h-[calc(100vh-80px)] overflow-hidden">
+
+      {/* Background Video */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 h-full w-full object-cover"
+      >
+        <source src={heroVideo} type="video/mp4" />
+      </video>
+
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/65"></div>
 
+      {/* Content */}
       <div className="relative z-10 flex min-h-[calc(100vh-80px)] items-center">
         <div className="mx-auto w-full max-w-7xl px-6 sm:px-8 lg:px-10">
 
@@ -55,6 +63,7 @@ function Hero() {
 
         </div>
       </div>
+
     </section>
   );
 }
