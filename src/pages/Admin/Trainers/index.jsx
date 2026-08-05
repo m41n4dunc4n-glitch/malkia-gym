@@ -112,7 +112,7 @@ function Trainers() {
           </p>
         </div>
       )}
-            {/* Empty */}
+      {/* Empty */}
 
       {!loading && filtered.length === 0 && (
         <div className="rounded-3xl bg-white p-8 text-center shadow sm:p-12">
@@ -177,8 +177,66 @@ function Trainers() {
                 </p>
 
                 <p className="mt-2 text-sm text-gray-500">
-                  {trainer.availability || "Available"}
+
+                  🕒
+
+                  {trainer.available_from}
+
+                  -
+
+                  {trainer.available_to}
+
                 </p>
+
+                <p className="text-sm text-gray-500">
+
+                  🍽 Lunch
+
+                  {trainer.lunch_start}
+
+                  -
+
+                  {trainer.lunch_end}
+
+                </p>
+
+                <p className="text-sm font-semibold text-pink-600">
+
+                  👥 Capacity:
+
+                  {trainer.capacity_per_slot}
+
+                  Members
+
+                </p>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+
+                  {[
+                    ["Mon", trainer.monday],
+                    ["Tue", trainer.tuesday],
+                    ["Wed", trainer.wednesday],
+                    ["Thu", trainer.thursday],
+                    ["Fri", trainer.friday],
+                    ["Sat", trainer.saturday],
+                    ["Sun", trainer.sunday],
+                  ].map(([day, enabled]) => (
+
+                    <span
+                      key={day}
+                      className={`rounded-full px-3 py-1 text-xs font-semibold ${enabled
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-200 text-gray-500"
+                        }`}
+                    >
+
+                      {day}
+
+                    </span>
+
+                  ))}
+
+                </div>
 
                 <div className="mt-4 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-500">
 
@@ -224,7 +282,7 @@ function Trainers() {
         </div>
 
       )}
-            {/* Modal */}
+      {/* Modal */}
 
       {open && (
         <TrainerModal

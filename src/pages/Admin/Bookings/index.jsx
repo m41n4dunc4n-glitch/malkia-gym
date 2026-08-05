@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   getAllBookings,
   updateBookingStatus,
+  deleteBooking,
 } from "../../../services/admin";
 
 function Bookings() {
@@ -14,29 +15,31 @@ function Bookings() {
   }, []);
 
   useEffect(() => {
-    let isMounted = true;
+    let mounted = true;
 
-    const syncBookings = async () => {
+    async function fetchBookings() {
       await loadBookings();
 
-      if (!isMounted) {
-        return;
-      }
-    };
+      if (!mounted) return;
+    }
 
-    syncBookings();
+    fetchBookings();
 
-    const interval = setInterval(() => {
-      syncBookings();
-    }, 10000);
+    const interval = setInterval(fetchBookings, 10000);
 
     return () => {
-      isMounted = false;
+      mounted = false;
       clearInterval(interval);
     };
   }, [loadBookings]);
 
   async function changeStatus(id, status) {
+    const confirmed = window.confirm(
+      `Change booking status to "${status}"?`
+    );
+
+    if (!confirmed) return;
+
     const { error } = await updateBookingStatus(id, status);
 
     if (!error) {
@@ -44,48 +47,61 @@ function Bookings() {
     }
   }
 
+  async function handleDelete(id) {
+    const confirmed = window.confirm(
+      "Delete this completed booking permanently?"
+    );
+
+    if (!confirmed) return;
+
+    const { error } = await deleteBooking(id);
+
+    if (!error) {
+      loadBookings();
+    }
+  }
+
+  function formatDate(date) {
+    return new Date(date).toLocaleDateString("en-GB", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
   return (
     <div className="space-y-8">
 
       <div>
 
-        <h1 className="text-3xl font-bold lg:text-4xl">
+        <h1 className="text-4xl font-bold">
           Booking Management
         </h1>
 
         <p className="mt-2 text-gray-500">
-          Approve, reject and manage trainer bookings.
+          Approve, reject, complete and manage all gym bookings.
         </p>
 
       </div>
 
       <div className="overflow-x-auto rounded-3xl bg-white shadow">
 
-        <table className="min-w-275 w-full">
+        <table className="min-w-[1200px] w-full">
 
           <thead className="bg-black text-white">
 
             <tr>
 
-              <th className="p-4 text-left">
-                Member
-              </th>
+              <th className="p-4 text-left">Member</th>
 
-              <th className="p-4 text-left">
-                Trainer
-              </th>
+              <th className="p-4 text-left">Trainer</th>
 
-              <th className="p-4 text-left">
-                Date
-              </th>
+              <th className="p-4 text-left">Date</th>
 
-              <th className="p-4 text-left">
-                Time
-              </th>
+              <th className="p-4 text-left">Time</th>
 
-              <th className="p-4 text-left">
-                Status
-              </th>
+              <th className="p-4 text-left">Status</th>
 
               <th className="p-4 text-left">
                 Actions
@@ -101,18 +117,18 @@ function Bookings() {
 
               <tr
                 key={booking.id}
-                className="border-b hover:bg-gray-50"
+                className="border-b transition hover:bg-gray-50"
               >
 
                 <td className="p-4">
 
-                  <div className="min-w-0">
+                  <div>
 
-                    <h3 className="font-semibold wrap-break-word">
+                    <h3 className="font-semibold">
                       {booking.profiles?.full_name}
                     </h3>
 
-                    <p className="break-all text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 break-all">
                       {booking.profiles?.email}
                     </p>
 
@@ -122,9 +138,9 @@ function Bookings() {
 
                 <td className="p-4">
 
-                  <div className="min-w-0">
+                  <div>
 
-                    <h3 className="font-semibold wrap-break-word">
+                    <h3 className="font-semibold">
                       {booking.trainers?.name}
                     </h3>
 
@@ -136,26 +152,25 @@ function Bookings() {
 
                 </td>
 
-                <td className="whitespace-nowrap p-4">
-                  {booking.booking_date}
+                <td className="p-4 whitespace-nowrap">
+                  {formatDate(booking.booking_date)}
                 </td>
 
-                <td className="whitespace-nowrap p-4">
+                <td className="p-4 whitespace-nowrap">
                   {booking.booking_time}
                 </td>
 
                 <td className="p-4">
 
                   <span
-                    className={`rounded-full px-3 py-1 text-sm font-semibold ${
-                      booking.status === "Pending"
+                    className={`rounded-full px-4 py-2 text-sm font-semibold ${booking.status === "Pending"
                         ? "bg-yellow-100 text-yellow-700"
                         : booking.status === "Approved"
-                        ? "bg-green-100 text-green-700"
-                        : booking.status === "Completed"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
+                          ? "bg-green-100 text-green-700"
+                          : booking.status === "Completed"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-red-100 text-red-700"
+                      }`}
                   >
                     {booking.status}
                   </span>
@@ -167,40 +182,63 @@ function Bookings() {
                   <div className="flex flex-wrap gap-2">
 
                     <button
+                      disabled={booking.status !== "Pending"}
                       onClick={() =>
                         changeStatus(
                           booking.id,
                           "Approved"
                         )
                       }
-                      className="rounded-lg bg-green-600 px-3 py-2 text-sm text-white transition hover:bg-green-700"
+                      className={`rounded-lg px-3 py-2 text-sm font-semibold text-white ${booking.status === "Pending"
+                          ? "bg-green-600 hover:bg-green-700"
+                          : "cursor-not-allowed bg-gray-400"
+                        }`}
                     >
                       Approve
                     </button>
 
                     <button
+                      disabled={booking.status !== "Pending"}
                       onClick={() =>
                         changeStatus(
                           booking.id,
                           "Cancelled"
                         )
                       }
-                      className="rounded-lg bg-red-600 px-3 py-2 text-sm text-white transition hover:bg-red-700"
+                      className={`rounded-lg px-3 py-2 text-sm font-semibold text-white ${booking.status === "Pending"
+                          ? "bg-red-600 hover:bg-red-700"
+                          : "cursor-not-allowed bg-gray-400"
+                        }`}
                     >
                       Reject
                     </button>
 
                     <button
+                      disabled={booking.status !== "Approved"}
                       onClick={() =>
                         changeStatus(
                           booking.id,
                           "Completed"
                         )
                       }
-                      className="rounded-lg bg-blue-600 px-3 py-2 text-sm text-white transition hover:bg-blue-700"
+                      className={`rounded-lg px-3 py-2 text-sm font-semibold text-white ${booking.status === "Approved"
+                          ? "bg-blue-600 hover:bg-blue-700"
+                          : "cursor-not-allowed bg-gray-400"
+                        }`}
                     >
                       Complete
                     </button>
+
+                    {booking.status === "Completed" && (
+                      <button
+                        onClick={() =>
+                          handleDelete(booking.id)
+                        }
+                        className="rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-black"
+                      >
+                        Delete
+                      </button>
+                    )}
 
                   </div>
 
@@ -209,6 +247,21 @@ function Bookings() {
               </tr>
 
             ))}
+
+            {bookings.length === 0 && (
+
+              <tr>
+
+                <td
+                  colSpan={6}
+                  className="p-10 text-center text-gray-500"
+                >
+                  No bookings available.
+                </td>
+
+              </tr>
+
+            )}
 
           </tbody>
 

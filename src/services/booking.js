@@ -1,4 +1,7 @@
 import { supabase } from "./supabase";
+// eslint-disable-next-line no-unused-vars
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export async function getTrainers() {
   return await supabase
@@ -23,6 +26,15 @@ export async function createBooking(booking) {
   return response;
 }
 
+export async function deleteBooking(id) {
+
+  return await supabase
+    .from("bookings")
+    .delete()
+    .eq("id", id);
+
+}
+
 export async function getMyBookings(userId) {
   return await supabase
     .from("bookings")
@@ -30,7 +42,8 @@ export async function getMyBookings(userId) {
       *,
       trainers (
         name,
-        specialty
+        specialty,
+        image_url
       )
     `)
     .eq("member_id", userId)

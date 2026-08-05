@@ -103,3 +103,10 @@ export async function deleteMember(id) {
     .delete()
     .eq("id", id);
 }
+
+export async function deleteBooking(id) {
+  return await supabase
+    .from("bookings")
+    .delete()
+    .eq("id", id);
+}
