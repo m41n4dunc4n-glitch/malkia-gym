@@ -29,15 +29,27 @@ function Login() {
         data.user.id
       );
 
-      if (profile?.status === "Suspended") {
-        await supabase.auth.signOut();
+      if (profile.status === "Suspended") {
 
-        alert(
-          "Your account has been suspended.\nPlease contact the gym administrator."
-        );
+  await supabase.auth.signOut();
 
-        return;
-      }
+  alert(
+    "Your account has been suspended.\nPlease contact the gym administrator."
+  );
+
+  return;
+}
+
+if (profile.status === "Deleted") {
+
+  await supabase.auth.signOut();
+
+  alert(
+    "This account has been deleted."
+  );
+
+  return;
+}
 
       if (profileError) {
         alert(profileError.message);

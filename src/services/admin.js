@@ -96,3 +96,10 @@ export async function changeRole(id, role) {
     .eq("id", id)
     .select();
 }
+
+export async function deleteMember(id) {
+  return await supabase
+    .from("profiles")
+    .delete()
+    .eq("id", id);
+}

@@ -1,7 +1,16 @@
 import { useState } from "react";
+import { deleteAccount } from "../../../services/deleteAccount";
+import { supabase } from "../../../services/supabase";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth";
 import { changePassword } from "../../../services/memberSettings";
 
 function Settings() {
+
+  const { user } = useAuth();
+
+const navigate = useNavigate();
+
   const [notifications, setNotifications] = useState(true);
 
   const [password, setPassword] = useState("");
@@ -40,6 +49,31 @@ function Settings() {
     setPassword("");
     setConfirmPassword("");
   }
+
+  async function handleDeleteAccount() {
+
+  const confirmDelete = prompt(
+    'Type DELETE to permanently deactivate your account.'
+  );
+
+  if (confirmDelete !== "DELETE") {
+    alert("Account deletion cancelled.");
+    return;
+  }
+
+  const { error } = await deleteAccount(user.id);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  await supabase.auth.signOut();
+
+  alert("Your account has been deleted.");
+
+  navigate("/");
+}
 
   return (
     <div className="space-y-8">
@@ -155,15 +189,15 @@ function Settings() {
         </h2>
 
         <p className="mb-6 text-gray-600">
-          Account deletion will be available soon.
+          Deleting your account will deactivate it immediately.
         </p>
 
         <button
-          disabled
-          className="w-full cursor-not-allowed rounded-xl bg-gray-400 py-4 font-semibold text-white md:w-auto md:px-10"
-        >
-          Delete Account (Coming Soon)
-        </button>
+  onClick={handleDeleteAccount}
+  className="w-full rounded-xl bg-red-600 py-4 font-semibold text-white transition hover:bg-red-700 md:w-auto md:px-10"
+>
+  Delete Account
+</button>
 
       </div>
 

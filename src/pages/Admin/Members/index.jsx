@@ -5,6 +5,7 @@ import {
   getMembers,
   updateMemberStatus,
   changeRole,
+  deleteMember,
 } from "../../../services/admin";
 
 function Members() {
@@ -22,6 +23,11 @@ function Members() {
   }
 
   async function handleSuspend(member) {
+    if (member.status === "Deleted") {
+      alert("Deleted accounts cannot be suspended.");
+      return;
+    }
+
     const newStatus =
       member.status === "Active"
         ? "Suspended"
@@ -30,12 +36,15 @@ function Members() {
     const confirmed = window.confirm(
       member.status === "Active"
         ? `Suspend ${member.full_name}?`
-        : `Unsuspend ${member.full_name}?`
+        : `Activate ${member.full_name}?`
     );
 
     if (!confirmed) return;
 
-    const { error } = await updateMemberStatus(member.id, newStatus);
+    const { error } = await updateMemberStatus(
+      member.id,
+      newStatus
+    );
 
     if (!error) loadMembers();
   }
@@ -46,9 +55,27 @@ function Members() {
         ? "member"
         : "admin";
 
-    const { error } = await changeRole(member.id, newRole);
+    const { error } = await changeRole(
+      member.id,
+      newRole
+    );
 
     if (!error) loadMembers();
+  }
+
+  async function handleDelete(member) {
+    const confirmed = window.confirm(
+      `Permanently delete ${member.full_name}?\n\nThis action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    const { error } = await deleteMember(member.id);
+
+    if (!error) {
+      alert("Member deleted successfully.");
+      loadMembers();
+    }
   }
 
   const filteredMembers = useMemo(() => {
@@ -75,7 +102,7 @@ function Members() {
           </h1>
 
           <p className="mt-2 text-gray-500">
-            Manage members, roles and memberships.
+            Manage members, memberships and roles.
           </p>
 
         </div>
@@ -125,17 +152,15 @@ function Members() {
 
                   <div className="flex items-center gap-4">
 
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-pink-600 text-lg font-bold text-white">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-pink-600 font-bold text-white">
 
-                      {member.full_name
-                        ?.charAt(0)
-                        ?.toUpperCase()}
+                      {member.full_name?.charAt(0)?.toUpperCase()}
 
                     </div>
 
-                    <div className="min-w-0">
+                    <div>
 
-                      <h3 className="font-bold wrap-break-word">
+                      <h3 className="font-bold">
                         {member.full_name}
                       </h3>
 
@@ -149,15 +174,15 @@ function Members() {
 
                 </td>
 
-                <td className="p-4 whitespace-nowrap">
+                <td className="p-4">
                   {member.phone || "-"}
                 </td>
 
-                <td className="p-4 whitespace-nowrap">
+                <td className="p-4">
                   {member.gender || "-"}
                 </td>
 
-                <td className="p-4 whitespace-nowrap">
+                <td className="p-4">
                   {member.membership_plans?.name || "None"}
                 </td>
 
@@ -181,7 +206,9 @@ function Members() {
                     className={`rounded-full px-3 py-1 text-sm font-semibold ${
                       member.status === "Active"
                         ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
+                        : member.status === "Suspended"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-gray-200 text-gray-700"
                     }`}
                   >
                     {member.status}
@@ -189,8 +216,10 @@ function Members() {
 
                 </td>
 
-                <td className="p-4 whitespace-nowrap">
-                  {new Date(member.created_at).toLocaleDateString()}
+                <td className="p-4">
+                  {new Date(
+                    member.created_at
+                  ).toLocaleDateString()}
                 </td>
 
                 <td className="p-4">
@@ -198,32 +227,49 @@ function Members() {
                   <div className="flex flex-wrap gap-2">
 
                     <button
-                      onClick={() => setSelectedMember(member)}
-                      className="rounded-lg bg-green-600 px-3 py-2 text-sm text-white transition hover:bg-green-700"
+                      onClick={() =>
+                        setSelectedMember(member)
+                      }
+                      className="rounded-lg bg-green-600 px-3 py-2 text-sm text-white hover:bg-green-700"
                     >
                       View
                     </button>
 
                     <button
-                      onClick={() => handleRole(member)}
-                      className="rounded-lg bg-blue-600 px-3 py-2 text-sm text-white transition hover:bg-blue-700"
+                      onClick={() =>
+                        handleRole(member)
+                      }
+                      className="rounded-lg bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
                     >
                       {member.role === "admin"
                         ? "Member"
                         : "Admin"}
                     </button>
 
+                    {member.status !== "Deleted" && (
+                      <button
+                        onClick={() =>
+                          handleSuspend(member)
+                        }
+                        className={`rounded-lg px-3 py-2 text-sm text-white ${
+                          member.status === "Active"
+                            ? "bg-red-600 hover:bg-red-700"
+                            : "bg-green-600 hover:bg-green-700"
+                        }`}
+                      >
+                        {member.status === "Active"
+                          ? "Suspend"
+                          : "Activate"}
+                      </button>
+                    )}
+
                     <button
-                      onClick={() => handleSuspend(member)}
-                      className={`rounded-lg px-3 py-2 text-sm text-white transition ${
-                        member.status === "Active"
-                          ? "bg-red-600 hover:bg-red-700"
-                          : "bg-green-600 hover:bg-green-700"
-                      }`}
+                      onClick={() =>
+                        handleDelete(member)
+                      }
+                      className="rounded-lg bg-red-800 px-3 py-2 text-sm text-white hover:bg-red-900"
                     >
-                      {member.status === "Active"
-                        ? "Suspend"
-                        : "Activate"}
+                      Delete
                     </button>
 
                   </div>
@@ -243,7 +289,9 @@ function Members() {
       {selectedMember && (
         <MemberModal
           member={selectedMember}
-          onClose={() => setSelectedMember(null)}
+          onClose={() =>
+            setSelectedMember(null)
+          }
           onUpdated={loadMembers}
         />
       )}
