@@ -4,6 +4,7 @@ import { FaCheck } from "react-icons/fa";
 import {
   getMembershipPlans,
   chooseMembership,
+  cancelMembership,
 } from "../../../services/membership";
 import { getProfile } from "../../../services/profile";
 
@@ -66,6 +67,25 @@ function Membership() {
       </div>
     );
   }
+
+  async function handleCancelMembership() {
+  const confirmCancel = window.confirm(
+    "Are you sure you want to cancel your membership?"
+  );
+
+  if (!confirmCancel) return;
+
+  const { error } = await cancelMembership(user.id);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  setCurrentMembership(null);
+  window.location.reload();
+  alert("Membership cancelled successfully.");
+}
 
   return (
     <div>
@@ -150,6 +170,19 @@ function Membership() {
         })}
 
       </div>
+
+        {currentMembership && (
+  <div className="mt-10 flex justify-center">
+
+    <button
+      onClick={handleCancelMembership}
+      className="rounded-xl bg-red-600 px-8 py-4 font-semibold text-white transition hover:bg-red-700"
+    >
+      Cancel Membership
+    </button>
+
+  </div>
+)}
 
     </div>
   );

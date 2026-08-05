@@ -12,6 +12,7 @@ import {
   FaCog,
   FaSignOutAlt,
   FaTimes,
+  FaCommentDots
 } from "react-icons/fa";
 
 function DashboardSidebar({
@@ -54,6 +55,11 @@ function DashboardSidebar({
       icon: <FaCreditCard />,
       path: "/member/payments",
     },
+    {
+  name: "Feedback",
+  icon: <FaCommentDots />,
+  path: "/member/feedback",
+},
     {
       name: "Settings",
       icon: <FaCog />,

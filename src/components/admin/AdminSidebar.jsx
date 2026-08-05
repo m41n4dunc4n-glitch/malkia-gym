@@ -15,6 +15,7 @@ import {
   FaImages,
   FaSignOutAlt,
   FaTimes,
+  FaCommentDots
 } from "react-icons/fa";
 
 function AdminSidebar({
@@ -70,6 +71,11 @@ function AdminSidebar({
       icon: <FaChartBar />,
       path: "/admin/reports",
     },
+    {
+    name: "Feedback",
+    icon: <FaCommentDots />,
+    path: "/admin/feedback",
+},
     {
       name: "Settings",
       icon: <FaCog />,

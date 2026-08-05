@@ -16,3 +16,14 @@ export async function chooseMembership(userId, membershipId) {
     })
     .eq("id", userId);
 }
+
+export async function cancelMembership(userId) {
+  return await supabase
+    .from("profiles")
+    .update({
+      membership_id: null,
+      membership_started_at: null,
+      status: "Inactive",
+    })
+    .eq("id", userId);
+}

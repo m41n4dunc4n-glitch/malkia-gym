@@ -26,6 +26,7 @@ import Profile from "../pages/Profile";
 import MemberMembership from "../pages/Member/Membership";
 import MemberBookings from "../pages/Member/Bookings";
 import MemberPayments from "../pages/Member/Payments";
+import MemberFeedback from "../pages/Member/Feedback";
 import MemberSettings from "../pages/Member/Settings";
 
 /* Admin Pages */
@@ -36,6 +37,7 @@ import AdminGallery from "../pages/Admin/Gallery";
 import AdminPayments from "../pages/Admin/Payments";
 import AdminTrainers from "../pages/Admin/Trainers";
 import MembershipPlans from "../pages/Admin/MembershipPlans";
+import AdminFeedback from "../pages/Admin/Feedback";
 import Reports from "../pages/Admin/Reports";
 import AdminSettings from "../pages/Admin/Settings";
 
@@ -135,6 +137,11 @@ function AppRoutes() {
           />
 
           <Route
+  path="/member/feedback"
+  element={<MemberFeedback />}
+/>
+
+          <Route
             path="/member/settings"
             element={<MemberSettings />}
           />
@@ -192,6 +199,11 @@ function AppRoutes() {
             path="/admin/reports"
             element={<Reports />}
           />
+
+          <Route
+  path="/admin/feedback"
+  element={<AdminFeedback />}
+/>
 
           <Route
             path="/admin/settings"
