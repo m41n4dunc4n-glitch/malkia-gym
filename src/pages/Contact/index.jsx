@@ -7,6 +7,8 @@ import {
   FaArrowRight,
 } from "react-icons/fa";
 import { useGymSettings } from "../../hooks/useGymSettings";
+import PageHero from "../../components/common/PageHero";
+import contactImage from "../../assets/images/pages/contact.jpg";
 
 function Contact() {
   const { settings } = useGymSettings();
@@ -17,36 +19,13 @@ function Contact() {
 
       {/* Hero */}
 
-<section className="mt-20 bg-black text-white">
-
-  <div className="max-w-7xl mx-auto px-6 sm:px-8 py-20 sm:py-24 lg:py-28 text-center">
-
-    <p className="uppercase tracking-[4px] sm:tracking-[6px] text-pink-500 font-semibold">
-
-      CONTACT US
-
-    </p>
-
-    <h1 className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight">
-
-      We'd Love
-
-      <br />
-
-      To Hear From You
-
-    </h1>
-
-    <p className="mt-6 max-w-3xl mx-auto text-base sm:text-lg lg:text-xl text-gray-300 leading-8">
-
-      Have questions? Need more information? Our team is always ready to help
-      you begin your fitness journey.
-
-    </p>
-
-  </div>
-
-</section>
+<PageHero
+  label="CONTACT US"
+  title={`We'd Love
+          To Hear From You`}
+  subtitle="Have questions? Need more information? Our team is always ready to help you begin your fitness journey."
+  image={contactImage}
+/>
 
       {/* Contact Section */}
 

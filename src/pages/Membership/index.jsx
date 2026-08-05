@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaCheck, FaDumbbell, FaArrowRight } from "react-icons/fa";
 import { getPlans } from "../../services/membershipPlans";
+import PageHero from "../../components/common/PageHero";
+import membershipImage from "../../assets/images/pages/membership.jpg";
 
 function Membership() {
   const [plans, setPlans] = useState([]);
@@ -64,27 +66,13 @@ function Membership() {
     <>
       {/* Hero */}
 
-      <section className="mt-20 bg-black text-white">
-
-        <div className="mx-auto max-w-7xl px-6 py-16 text-center sm:px-8 sm:py-20 lg:py-28">
-
-          <p className="text-sm font-semibold uppercase tracking-[4px] text-pink-500 sm:text-base lg:tracking-[6px]">
-            MEMBERSHIP
-          </p>
-
-          <h1 className="mt-6 text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
-            Choose Your
-            <br />
-            Membership Plan
-          </h1>
-
-          <p className="mx-auto mt-8 max-w-3xl text-lg text-gray-300 lg:text-xl">
-            Flexible plans designed for every stage of your fitness journey.
-          </p>
-
-        </div>
-
-      </section>
+      <PageHero
+        label="Membership"
+        title={`Choose Your
+          Membership Plan.`}
+        subtitle="Flexible plan designed for every stage of your fitness journey."
+        image={membershipImage}
+      />
 
       {/* Pricing */}
 
@@ -102,11 +90,10 @@ function Membership() {
 
                 <div
                   key={plan.id}
-                  className={`rounded-3xl p-8 shadow-xl transition duration-300 hover:-translate-y-2 ${
-                    index === 1
+                  className={`rounded-3xl p-8 shadow-xl transition duration-300 hover:-translate-y-2 ${index === 1
                       ? "bg-pink-600 text-white lg:scale-105"
                       : "bg-black text-white"
-                  }`}
+                    }`}
                 >
 
                   {index === 1 && (
@@ -157,7 +144,7 @@ function Membership() {
         </div>
 
       </section>
-            {/* Benefits */}
+      {/* Benefits */}
 
       <section className="bg-black py-16 text-white sm:py-20 lg:py-24">
 

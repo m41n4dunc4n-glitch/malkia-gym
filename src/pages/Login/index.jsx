@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { signIn } from "../../services/auth";
 import { supabase } from "../../services/supabase";
 import { getProfile } from "../../services/profile";
+import loginImage from "../../assets/images/pages/login.jpg";
 
 function Login() {
   const navigate = useNavigate();
@@ -28,15 +29,15 @@ function Login() {
         data.user.id
       );
 
-      if (profile.status === "Suspended") {
-  await supabase.auth.signOut();
+      if (profile?.status === "Suspended") {
+        await supabase.auth.signOut();
 
-  alert(
-    "Your account has been suspended. \nPlease contact the gym administrator."
-  );
+        alert(
+          "Your account has been suspended.\nPlease contact the gym administrator."
+        );
 
-  return;
-}
+        return;
+      }
 
       if (profileError) {
         alert(profileError.message);
@@ -56,31 +57,58 @@ function Login() {
   }
 
   return (
-    <section className="mt-20 min-h-[calc(100vh-80px)] bg-black flex items-center justify-center px-6 sm:px-8 py-16 sm:py-20">
+    <section
+      className="relative mt-20 min-h-[calc(100vh-80px)] bg-cover bg-center"
+      style={{
+        backgroundImage: `url(${loginImage})`,
+      }}
+    >
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/65"></div>
 
-      <div className="w-full max-w-md">
+      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-80px)] max-w-7xl items-center justify-between gap-16 px-6 sm:px-8 lg:px-10">
 
-        {/* Heading */}
+        {/* LEFT SIDE */}
 
-        <div className="text-center mb-10">
+        <div className="hidden max-w-xl lg:block">
 
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-[5px] text-pink-500">
+            MEMBER ACCESS
+          </p>
 
-            Welcome Back
+          <h1 className="text-6xl font-extrabold leading-tight text-white">
+
+            Welcome
+            <br />
+            Back.
 
           </h1>
 
-          <p className="mt-4 text-base sm:text-lg text-gray-400 leading-7">
+          <p className="mt-8 text-xl leading-9 text-gray-300">
 
-            Login to continue your fitness journey with Malkia Fitness.
+            Continue your fitness journey with
+            <span className="font-semibold text-white">
+              {" "}Malkia Fitness
+            </span>.
+
+            <br />
+            <br />
+
+            Train with professional coaches,
+            achieve your goals,
+            and become the strongest version of yourself.
 
           </p>
 
         </div>
 
-        {/* Card */}
+        {/* RIGHT SIDE */}
 
-        <div className="rounded-3xl bg-zinc-900 p-6 sm:p-8 lg:p-10 shadow-2xl">
+        <div className="w-full max-w-md rounded-3xl border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-xl">
+
+          <h2 className="mb-8 text-center text-4xl font-bold text-white">
+            Login
+          </h2>
 
           <form
             onSubmit={handleSubmit}
@@ -90,9 +118,7 @@ function Login() {
             <div>
 
               <label className="mb-2 block font-medium text-white">
-
                 Email Address
-
               </label>
 
               <input
@@ -100,7 +126,7 @@ function Login() {
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-zinc-700 bg-black px-5 py-4 text-white outline-none transition focus:border-pink-500"
+                className="w-full rounded-xl border border-white/20 bg-white/10 px-5 py-4 text-white placeholder:text-gray-300 outline-none backdrop-blur-md transition focus:border-pink-500"
                 required
               />
 
@@ -109,9 +135,7 @@ function Login() {
             <div>
 
               <label className="mb-2 block font-medium text-white">
-
                 Password
-
               </label>
 
               <input
@@ -119,7 +143,7 @@ function Login() {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-zinc-700 bg-black px-5 py-4 text-white outline-none transition focus:border-pink-500"
+                className="w-full rounded-xl border border-white/20 bg-white/10 px-5 py-4 text-white placeholder:text-gray-300 outline-none backdrop-blur-md transition focus:border-pink-500"
                 required
               />
 
@@ -129,11 +153,9 @@ function Login() {
 
               <Link
                 to="/forgot-password"
-                className="text-sm text-pink-500 transition hover:text-pink-400"
+                className="text-sm text-pink-300 hover:text-pink-400"
               >
-
                 Forgot Password?
-
               </Link>
 
             </div>
@@ -141,30 +163,24 @@ function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-pink-600 py-4 font-semibold text-white transition hover:bg-pink-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-xl bg-pink-600 py-4 font-bold text-white transition hover:bg-pink-700 disabled:opacity-50"
             >
-
               {loading ? "Logging in..." : "Login"}
-
             </button>
 
           </form>
 
-          <div className="mt-8 border-t border-zinc-700 pt-6 text-center">
+          <div className="mt-8 border-t border-white/20 pt-6 text-center">
 
-            <p className="text-gray-400">
-
+            <p className="text-gray-200">
               Don't have an account?
-
             </p>
 
             <Link
               to="/register"
-              className="mt-3 inline-block font-semibold text-pink-500 transition hover:text-pink-400"
+              className="mt-3 inline-block font-semibold text-pink-300 hover:text-pink-400"
             >
-
               Create Account
-
             </Link>
 
           </div>
@@ -172,7 +188,6 @@ function Login() {
         </div>
 
       </div>
-
     </section>
   );
 }

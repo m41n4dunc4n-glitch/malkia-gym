@@ -6,6 +6,8 @@ import {
 } from "react-icons/fa";
 
 import { getTrainers } from "../../services/trainers";
+import PageHero from "../../components/common/PageHero";
+import trainersImage from "../../assets/images/pages/trainers.jpg";
 
 function Trainers() {
   const [trainers, setTrainers] = useState([]);
@@ -33,29 +35,12 @@ function Trainers() {
 
       {/* Hero */}
 
-      <section className="mt-20 bg-black text-white">
-
-        <div className="mx-auto max-w-7xl px-6 py-20 text-center sm:px-8 sm:py-24 lg:py-28">
-
-          <p className="font-semibold uppercase tracking-[4px] text-pink-500 sm:tracking-[6px]">
-            OUR TRAINERS
-          </p>
-
-          <h1 className="mt-6 text-4xl font-extrabold sm:text-5xl lg:text-6xl">
-            Meet The Experts
-          </h1>
-
-          <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-gray-300">
-
-            Our certified trainers are committed to helping every member
-            achieve her fitness goals safely, confidently and effectively.
-
-          </p>
-
-        </div>
-
-      </section>
-
+      <PageHero
+  label="OUR TRAINERS"
+  title={`Meet The Experts`}
+  subtitle="Our certified trainers are committed to helping every member achieve her fitness goals safely, confidently and effectively."
+  image={trainersImage}
+/>
       {/* Intro */}
 
       <section className="bg-white py-16 sm:py-20">

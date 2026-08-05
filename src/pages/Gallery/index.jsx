@@ -7,6 +7,8 @@ import {
 } from "react-icons/fa";
 
 import { getGalleryImages } from "../../services/gallery";
+import PageHero from "../../components/common/PageHero";
+import galleryImage from "../../assets/images/pages/gallery.jpg";
 
 function Gallery() {
   const [photos, setPhotos] = useState([]);
@@ -34,35 +36,13 @@ function Gallery() {
 
       {/* Hero */}
 
-<section className="mt-20 bg-black text-white">
-
-  <div className="max-w-7xl mx-auto px-6 sm:px-8 py-20 sm:py-24 lg:py-28 text-center">
-
-    <p className="uppercase tracking-[4px] sm:tracking-[6px] font-semibold text-pink-500">
-
-      GALLERY
-
-    </p>
-
-    <h1 className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight">
-
-      Experience
-
-      <br />
-
-      Malkia Fitness
-
-    </h1>
-
-    <p className="mt-6 max-w-3xl mx-auto text-base sm:text-lg lg:text-xl text-gray-300 leading-8">
-
-      Every image tells a story of dedication, strength and transformation.
-
-    </p>
-
-  </div>
-
-</section>
+<PageHero
+  label="GALLERY"
+  title={`Experience
+          Malkia Fitness`}
+  subtitle="Every image tells a story of dedication, strength and transformation."
+  image={galleryImage}
+/>
 
       {/* Intro */}
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signUp } from "../../services/auth";
+import registerImage from "../../assets/images/pages/register.jpg";
 
 function Register() {
   const navigate = useNavigate();
@@ -37,32 +38,56 @@ function Register() {
   }
 
   return (
-    <section className="mt-20 min-h-[calc(100vh-80px)] bg-black flex items-center justify-center px-6 sm:px-8 py-16 sm:py-20">
+    <section
+      className="relative mt-20 min-h-[calc(100vh-80px)] bg-cover bg-center"
+      style={{
+        backgroundImage: `url(${registerImage})`,
+      }}
+    >
+      {/* Dark Overlay */}
 
-      <div className="w-full max-w-md">
+      <div className="absolute inset-0 bg-black/65"></div>
 
-        {/* Heading */}
+      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-80px)] max-w-7xl items-center justify-between gap-16 px-6 sm:px-8 lg:px-10">
 
-        <div className="mb-10 text-center">
+        {/* LEFT SIDE */}
 
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white">
+        <div className="hidden max-w-xl lg:block">
 
-            Create Account
+          <p className="mb-4 text-sm font-semibold uppercase tracking-[5px] text-pink-500">
+            JOIN MALKIA FITNESS
+          </p>
+
+          <h1 className="text-6xl font-extrabold leading-tight text-white">
+
+            Become
+            <br />
+            A Queen.
 
           </h1>
 
-          <p className="mt-4 text-base sm:text-lg text-gray-400 leading-7">
+          <p className="mt-8 text-xl leading-9 text-gray-300">
 
-            Join Malkia Fitness and begin your journey to becoming stronger,
-            healthier and more confident.
+            Begin your transformation today.
+
+            <br />
+            <br />
+
+            Join a supportive community of women,
+            train with experienced coaches,
+            and build a healthier, stronger and more confident version of yourself.
 
           </p>
 
         </div>
 
-        {/* Card */}
+        {/* RIGHT SIDE */}
 
-        <div className="rounded-3xl bg-zinc-900 p-6 sm:p-8 lg:p-10 shadow-2xl">
+        <div className="w-full max-w-md rounded-3xl border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-xl">
+
+          <h2 className="mb-8 text-center text-4xl font-bold text-white">
+            Create Account
+          </h2>
 
           <form
             onSubmit={handleSubmit}
@@ -72,9 +97,7 @@ function Register() {
             <div>
 
               <label className="mb-2 block font-medium text-white">
-
                 Full Name
-
               </label>
 
               <input
@@ -82,7 +105,7 @@ function Register() {
                 placeholder="Enter your full name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="w-full rounded-xl border border-zinc-700 bg-black px-5 py-4 text-white outline-none transition focus:border-pink-500"
+                className="w-full rounded-xl border border-white/20 bg-white/10 px-5 py-4 text-white placeholder:text-gray-300 outline-none backdrop-blur-md transition focus:border-pink-500"
                 required
               />
 
@@ -91,9 +114,7 @@ function Register() {
             <div>
 
               <label className="mb-2 block font-medium text-white">
-
                 Email Address
-
               </label>
 
               <input
@@ -101,7 +122,7 @@ function Register() {
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-zinc-700 bg-black px-5 py-4 text-white outline-none transition focus:border-pink-500"
+                className="w-full rounded-xl border border-white/20 bg-white/10 px-5 py-4 text-white placeholder:text-gray-300 outline-none backdrop-blur-md transition focus:border-pink-500"
                 required
               />
 
@@ -110,9 +131,7 @@ function Register() {
             <div>
 
               <label className="mb-2 block font-medium text-white">
-
                 Password
-
               </label>
 
               <input
@@ -120,7 +139,7 @@ function Register() {
                 placeholder="Create a password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-zinc-700 bg-black px-5 py-4 text-white outline-none transition focus:border-pink-500"
+                className="w-full rounded-xl border border-white/20 bg-white/10 px-5 py-4 text-white placeholder:text-gray-300 outline-none backdrop-blur-md transition focus:border-pink-500"
                 required
               />
 
@@ -129,30 +148,24 @@ function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-pink-600 py-4 font-semibold text-white transition hover:bg-pink-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-xl bg-pink-600 py-4 font-bold text-white transition hover:bg-pink-700 disabled:opacity-50"
             >
-
               {loading ? "Creating Account..." : "Create Account"}
-
             </button>
 
           </form>
 
-          <div className="mt-8 border-t border-zinc-700 pt-6 text-center">
+          <div className="mt-8 border-t border-white/20 pt-6 text-center">
 
-            <p className="text-gray-400">
-
+            <p className="text-gray-200">
               Already have an account?
-
             </p>
 
             <Link
               to="/login"
-              className="mt-3 inline-block font-semibold text-pink-500 transition hover:text-pink-400"
+              className="mt-3 inline-block font-semibold text-pink-300 hover:text-pink-400"
             >
-
               Login
-
             </Link>
 
           </div>

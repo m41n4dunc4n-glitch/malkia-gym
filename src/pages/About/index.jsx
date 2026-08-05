@@ -7,6 +7,8 @@ import {
   FaUsers,
   FaArrowRight,
 } from "react-icons/fa";
+import PageHero from "../../components/common/PageHero";
+import aboutImage from "../../assets/images/pages/about.jpg";
 
 function About() {
   const values = [
@@ -39,33 +41,13 @@ function About() {
       {/* Hero */}
       {/* Hero */}
 
-<section className="mt-20 bg-black text-white">
-
-  <div className="mx-auto max-w-7xl px-6 py-16 sm:px-8 sm:py-20 lg:py-28">
-
-    <p className="text-sm font-semibold uppercase tracking-[4px] text-pink-500 sm:text-base lg:tracking-[6px]">
-      ABOUT MALKIA FITNESS
-    </p>
-
-    <h1 className="mt-6 text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
-
-      More Than
-
-      <br />
-
-      Just A Gym.
-
-    </h1>
-
-    <p className="mt-8 max-w-3xl text-lg leading-8 text-gray-300 lg:text-xl">
-
-      Malkia Fitness is a women-only fitness centre dedicated to helping every woman become stronger, healthier and more confident through professional coaching and a supportive community.
-
-    </p>
-
-  </div>
-
-</section>
+<PageHero
+  label="ABOUT MALKIA FITNESS"
+  title={`More Than
+          Just A Gym.`}
+  subtitle="Malkia Fitness is a women-only fitness centre dedicated to helping every woman become stronger, healthier and more confident through professional coaching and a supportive community."
+  image={aboutImage}
+/>
 
       {/* Story */}
 
