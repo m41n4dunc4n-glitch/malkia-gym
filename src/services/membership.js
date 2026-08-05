@@ -23,7 +23,6 @@ export async function cancelMembership(userId) {
     .update({
       membership_id: null,
       membership_started_at: null,
-      status: "Inactive",
     })
     .eq("id", userId);
 }

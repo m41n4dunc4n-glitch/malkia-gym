@@ -83,7 +83,7 @@ function Membership() {
   }
 
   setCurrentMembership(null);
-  window.location.reload();
+
   alert("Membership cancelled successfully.");
 }
 
