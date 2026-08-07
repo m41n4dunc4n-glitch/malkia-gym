@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
 import {
   FaCheck,
@@ -11,7 +12,6 @@ import {
 
 import {
   getMembershipPlans,
-  chooseMembership,
   cancelMembership,
 } from "../../../services/membership";
 
@@ -28,6 +28,8 @@ function getFeatures(description) {
 
 function Membership() {
   const { user } = useAuth();
+
+  const navigate = useNavigate();
 
   const [plans, setPlans] = useState([]);
   const [currentMembership, setCurrentMembership] = useState(null);
@@ -57,23 +59,8 @@ function Membership() {
   }, [user]);
 
   async function handleChoose(planId) {
-    const { error } =
-      await chooseMembership(
-        user.id,
-        planId
-      );
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    setCurrentMembership(planId);
-
-    alert(
-      "Membership updated successfully!"
-    );
-  }
+  navigate(`/member/payments?plan=${planId}`);
+}
 
   async function handleCancelMembership() {
     const confirmCancel =

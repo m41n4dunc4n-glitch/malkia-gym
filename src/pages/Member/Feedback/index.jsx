@@ -166,7 +166,7 @@ function Feedback() {
 
               <div className="flex flex-wrap items-center gap-2">
 
-                {[1, 2, 3, 4, 5].map(
+                {[0, 1, 2, 3, 4, 5].map(
                   (star) => (
 
                     <button
