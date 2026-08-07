@@ -6,6 +6,7 @@ import {
   FaUniversity,
   FaCheckCircle,
   FaClock,
+  // eslint-disable-next-line no-unused-vars
   FaCloudUploadAlt,
   FaCreditCard,
   FaDownload,
@@ -165,6 +166,7 @@ function Payments() {
   =====================================================
   */
 
+  // eslint-disable-next-line no-unused-vars
   function handleReceiptChange(e) {
     const file = e.target.files?.[0];
 
@@ -1136,39 +1138,7 @@ function Payments() {
                 RECEIPT
             ======================================== */}
 
-            <div>
-
-              <label className="mb-3 block text-sm font-bold text-gray-700">
-                Payment Proof
-              </label>
-
-              <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center transition hover:border-pink-400 hover:bg-pink-50">
-
-                <FaCloudUploadAlt className="text-3xl text-pink-600" />
-
-                <p className="mt-3 font-bold text-gray-700">
-
-                  {receiptFile
-                    ? receiptFile.name
-                    : "Upload payment receipt"}
-
-                </p>
-
-                <p className="mt-1 text-sm text-gray-500">
-                  Image or PDF
-                </p>
-
-                <input
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={handleReceiptChange}
-                  className="hidden"
-                />
-
-              </label>
-
-            </div>
-
+            
             {/* ========================================
                 NOTES
             ======================================== */}

@@ -38,6 +38,7 @@ import AdminGallery from "../pages/Admin/Gallery";
 import AdminPayments from "../pages/Admin/Payments";
 import AdminTrainers from "../pages/Admin/Trainers";
 import MembershipPlans from "../pages/Admin/MembershipPlans";
+import PaymentHistory from "../pages/Admin/Payment History";
 import AdminHistory from "../pages/Admin/History";
 import AdminFeedback from "../pages/Admin/Feedback";
 import Reports from "../pages/Admin/Reports";
@@ -186,6 +187,11 @@ function AppRoutes() {
             path="/admin/payments"
             element={<AdminPayments />}
           />
+
+          <Route
+  path="/admin/payment-history"
+  element={<PaymentHistory />}
+/>
 
           <Route
             path="/admin/trainers"
