@@ -1,5 +1,11 @@
 import { supabase } from "./supabase";
 
+/*
+|--------------------------------------------------------------------------
+| DASHBOARD STATS
+|--------------------------------------------------------------------------
+*/
+
 export async function getDashboardStats() {
   const [members, trainers, bookings, pending] =
     await Promise.all([
@@ -29,6 +35,12 @@ export async function getDashboardStats() {
   };
 }
 
+/*
+|--------------------------------------------------------------------------
+| MEMBERS
+|--------------------------------------------------------------------------
+*/
+
 export async function getMembers() {
   return await supabase
     .from("profiles")
@@ -48,39 +60,6 @@ export async function updateMemberRole(id, role) {
     .eq("id", id);
 }
 
-export async function getAllBookings() {
-  const today = new Date().toISOString().split("T")[0];
-
-  const response = await supabase
-    .from("bookings")
-    .select(`
-      *,
-      profiles!bookings_member_id_fkey(
-        id,
-        full_name,
-        email
-      ),
-      trainers!bookings_trainer_id_fkey(
-        id,
-        name,
-        specialty
-      )
-    `)
-    .gte("booking_date", today)
-    .order("booking_date", { ascending: true })
-    .order("booking_time", { ascending: true });
-
-  return response;
-}
-
-export async function updateBookingStatus(id, status) {
-  return await supabase
-    .from("bookings")
-    .update({ status })
-    .eq("id", id);
-}
-
-// Suspend / Activate
 export async function updateMemberStatus(id, status) {
   return await supabase
     .from("profiles")
@@ -104,9 +83,102 @@ export async function deleteMember(id) {
     .eq("id", id);
 }
 
-export async function deleteBooking(id) {
+/*
+|--------------------------------------------------------------------------
+| ACTIVE ADMIN BOOKINGS
+|--------------------------------------------------------------------------
+|
+| Admin sees only Pending + Approved bookings here.
+| admin_deleted = false means the booking has not been
+| hidden from the admin's side.
+|
+|--------------------------------------------------------------------------
+*/
+
+export async function getAllBookings() {
   return await supabase
     .from("bookings")
-    .delete()
+    .select(`
+      *,
+      profiles (
+        full_name,
+        email
+      ),
+      trainers (
+        name,
+        specialty
+      )
+    `)
+    .eq("admin_deleted", false)
+    .in("status", ["Pending", "Approved"])
+    .order("booking_date", { ascending: true })
+    .order("booking_time", { ascending: true });
+}
+
+/*
+|--------------------------------------------------------------------------
+| ADMIN BOOKING HISTORY
+|--------------------------------------------------------------------------
+|
+| Completed + Cancelled bookings appear here.
+|
+|--------------------------------------------------------------------------
+*/
+
+export async function getBookingHistory() {
+  return await supabase
+    .from("bookings")
+    .select(`
+      *,
+      profiles (
+        full_name,
+        email
+      ),
+      trainers (
+        name,
+        specialty
+      )
+    `)
+    .eq("admin_deleted", false)
+    .in("status", ["Completed", "Cancelled"])
+    .order("booking_date", { ascending: false })
+    .order("booking_time", { ascending: false });
+}
+
+/*
+|--------------------------------------------------------------------------
+| UPDATE BOOKING STATUS
+|--------------------------------------------------------------------------
+*/
+
+export async function updateBookingStatus(id, status) {
+  return await supabase
+    .from("bookings")
+    .update({
+      status,
+    })
+    .eq("id", id);
+}
+
+/*
+|--------------------------------------------------------------------------
+| ADMIN DELETE / HIDE HISTORY
+|--------------------------------------------------------------------------
+|
+| IMPORTANT:
+| This does NOT delete the booking from the database.
+| It only hides it from the ADMIN.
+|
+| The member can still see their own history.
+|
+|--------------------------------------------------------------------------
+*/
+
+export async function deleteAdminHistoryBooking(id) {
+  return await supabase
+    .from("bookings")
+    .update({
+      admin_deleted: true,
+    })
     .eq("id", id);
 }

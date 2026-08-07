@@ -27,6 +27,7 @@ import MemberMembership from "../pages/Member/Membership";
 import MemberBookings from "../pages/Member/Bookings";
 import MemberPayments from "../pages/Member/Payments";
 import MemberFeedback from "../pages/Member/Feedback";
+import History from "../pages/Member/History";
 import MemberSettings from "../pages/Member/Settings";
 
 /* Admin Pages */
@@ -37,6 +38,7 @@ import AdminGallery from "../pages/Admin/Gallery";
 import AdminPayments from "../pages/Admin/Payments";
 import AdminTrainers from "../pages/Admin/Trainers";
 import MembershipPlans from "../pages/Admin/MembershipPlans";
+import AdminHistory from "../pages/Admin/History";
 import AdminFeedback from "../pages/Admin/Feedback";
 import Reports from "../pages/Admin/Reports";
 import AdminSettings from "../pages/Admin/Settings";
@@ -45,7 +47,7 @@ function AppRoutes() {
   return (
     <BrowserRouter>
 
-    <ScrollToTop />
+      <ScrollToTop />
 
       <Routes>
 
@@ -137,9 +139,14 @@ function AppRoutes() {
           />
 
           <Route
-  path="/member/feedback"
-  element={<MemberFeedback />}
-/>
+            path="/member/feedback"
+            element={<MemberFeedback />}
+          />
+
+          <Route
+            path="/member/history"
+            element={<History />}
+          />
 
           <Route
             path="/member/settings"
@@ -186,9 +193,9 @@ function AppRoutes() {
           />
 
           <Route
-  path="/admin/gallery"
-  element={<AdminGallery />}
-/>
+            path="/admin/gallery"
+            element={<AdminGallery />}
+          />
 
           <Route
             path="/admin/plans"
@@ -201,9 +208,14 @@ function AppRoutes() {
           />
 
           <Route
-  path="/admin/feedback"
-  element={<AdminFeedback />}
-/>
+            path="/admin/history"
+            element={<AdminHistory />}
+          />
+
+          <Route
+            path="/admin/feedback"
+            element={<AdminFeedback />}
+          />
 
           <Route
             path="/admin/settings"

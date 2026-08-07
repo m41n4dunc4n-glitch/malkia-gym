@@ -1,7 +1,10 @@
 import { supabase } from "./supabase";
-// eslint-disable-next-line no-unused-vars
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+
+/*
+|--------------------------------------------------------------------------
+| TRAINERS
+|--------------------------------------------------------------------------
+*/
 
 export async function getTrainers() {
   return await supabase
@@ -10,30 +13,35 @@ export async function getTrainers() {
     .order("name");
 }
 
+/*
+|--------------------------------------------------------------------------
+| CREATE BOOKING
+|--------------------------------------------------------------------------
+*/
+
 export async function createBooking(booking) {
-  const response = await supabase
+  return await supabase
     .from("bookings")
     .insert([
       {
         ...booking,
         status: "Pending",
+        member_deleted: false,
+        admin_deleted: false,
       },
     ])
     .select();
-
-  console.log("Booking Insert:", response);
-
-  return response;
 }
 
-export async function deleteBooking(id) {
-
-  return await supabase
-    .from("bookings")
-    .delete()
-    .eq("id", id);
-
-}
+/*
+|--------------------------------------------------------------------------
+| MEMBER ACTIVE BOOKINGS
+|--------------------------------------------------------------------------
+|
+| Only Pending and Approved bookings appear here.
+| Completed and Cancelled bookings belong in History.
+|
+*/
 
 export async function getMyBookings(userId) {
   return await supabase
@@ -47,20 +55,70 @@ export async function getMyBookings(userId) {
       )
     `)
     .eq("member_id", userId)
-    .order("booking_date");
+    .eq("member_deleted", false)
+    .in("status", ["Pending", "Approved"])
+    .order("booking_date", { ascending: true })
+    .order("booking_time", { ascending: true });
 }
+
+/*
+|--------------------------------------------------------------------------
+| MEMBER BOOKING HISTORY
+|--------------------------------------------------------------------------
+|
+| Completed + Cancelled only.
+|
+*/
+
+export default async function getMyBookingHistory(userId) {
+  return await supabase
+    .from("bookings")
+    .select(`
+      *,
+      trainers (
+        name,
+        specialty
+      )
+    `)
+    .eq("member_id", userId)
+    .eq("member_deleted", false)
+    .in("status", ["Completed", "Cancelled"])
+    .order("booking_date", {
+      ascending: false,
+    });
+}
+
+export async function deleteMemberHistoryBooking(id) {
+  return await supabase
+    .from("bookings")
+    .update({
+      member_deleted: true,
+    })
+    .eq("id", id);
+}
+/*
+|--------------------------------------------------------------------------
+| MEMBER CANCEL BOOKING
+|--------------------------------------------------------------------------
+|
+| We keep the booking record because it becomes history.
+|
+*/
 
 export async function cancelBooking(id) {
-  const response = await supabase
+  return await supabase
     .from("bookings")
-    .delete()
-    .eq("id", id)
-    .select();
-
-  console.log(response);
-
-  return response;
+    .update({
+      status: "Cancelled",
+    })
+    .eq("id", id);
 }
+
+/*
+|--------------------------------------------------------------------------
+| CHECK TRAINER AVAILABILITY
+|--------------------------------------------------------------------------
+*/
 
 export async function checkTrainerAvailability(
   trainerId,
@@ -73,5 +131,6 @@ export async function checkTrainerAvailability(
     .eq("trainer_id", trainerId)
     .eq("booking_date", bookingDate)
     .eq("booking_time", bookingTime)
-    .neq("status", "Cancelled");
+    .neq("status", "Cancelled")
+    .eq("member_deleted", false);
 }
