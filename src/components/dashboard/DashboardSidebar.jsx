@@ -14,6 +14,7 @@ import {
   FaTimes,
   FaCommentDots,
   FaHistory,
+  FaReceipt,
 } from "react-icons/fa";
 
 function DashboardSidebar({
@@ -56,6 +57,11 @@ function DashboardSidebar({
       name: "Payments",
       icon: <FaCreditCard />,
       path: "/member/payments",
+    },
+    {
+      name: "Payment History",
+      icon: <FaReceipt />,
+      path: "/member/payment-history",
     },
     {
       name: "Feedback",

@@ -48,6 +48,11 @@ function AdminSidebar({
       path: "/admin/bookings",
     },
     {
+      name: "Booking History",
+      icon: <FaHistory />,
+      path: "/admin/history",
+    },
+    {
       name: "Payments",
       icon: <FaCreditCard />,
       path: "/admin/payments",
@@ -81,11 +86,6 @@ function AdminSidebar({
       name: "Feedback",
       icon: <FaCommentDots />,
       path: "/admin/feedback",
-    },
-    {
-      name: "Booking History",
-      icon: <FaHistory />,
-      path: "/admin/history",
     },
     {
       name: "Settings",

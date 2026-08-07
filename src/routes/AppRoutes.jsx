@@ -26,6 +26,7 @@ import Profile from "../pages/Profile";
 import MemberMembership from "../pages/Member/Membership";
 import MemberBookings from "../pages/Member/Bookings";
 import MemberPayments from "../pages/Member/Payments";
+import MemberPaymentHistory from "../pages/Member/Payment History";
 import MemberFeedback from "../pages/Member/Feedback";
 import History from "../pages/Member/History";
 import MemberSettings from "../pages/Member/Settings";
@@ -38,7 +39,7 @@ import AdminGallery from "../pages/Admin/Gallery";
 import AdminPayments from "../pages/Admin/Payments";
 import AdminTrainers from "../pages/Admin/Trainers";
 import MembershipPlans from "../pages/Admin/MembershipPlans";
-import PaymentHistory from "../pages/Admin/Payment History";
+import AdminPaymentHistory from "../pages/Admin/Payment History";
 import AdminHistory from "../pages/Admin/History";
 import AdminFeedback from "../pages/Admin/Feedback";
 import Reports from "../pages/Admin/Reports";
@@ -140,6 +141,11 @@ function AppRoutes() {
           />
 
           <Route
+            path="/member/payment-history"
+            element={<MemberPaymentHistory />}
+          />
+
+          <Route
             path="/member/feedback"
             element={<MemberFeedback />}
           />
@@ -189,9 +195,9 @@ function AppRoutes() {
           />
 
           <Route
-  path="/admin/payment-history"
-  element={<PaymentHistory />}
-/>
+            path="/admin/payment-history"
+            element={<AdminPaymentHistory />}
+          />
 
           <Route
             path="/admin/trainers"
