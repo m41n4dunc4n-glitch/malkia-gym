@@ -12,6 +12,7 @@ import {
   FaPhone,
   FaVenusMars,
   FaCrown,
+  FaDumbbell,
 } from "react-icons/fa";
 
 import MemberModal from "../../../components/admin/MemberModal";
@@ -23,6 +24,10 @@ import {
   deleteMember,
 } from "../../../services/admin";
 
+import {
+  promoteMemberToTrainer,
+} from "../../../services/trainers";
+
 function Members() {
   const [members, setMembers] = useState([]);
   const [search, setSearch] = useState("");
@@ -32,6 +37,55 @@ function Members() {
   useEffect(() => {
     loadMembers();
   }, []);
+
+  async function handlePromoteToTrainer(member) {
+    if (member.status === "Deleted") {
+      alert("Deleted accounts cannot be promoted to trainers.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Promote ${member.full_name} to Trainer?\n\n` +
+      `This will create a trainer profile linked to their account.\n\n` +
+      `They will be able to access the Trainer dashboard when they log in.`
+    );
+
+    if (!confirmed) return;
+
+    const { data, error } =
+      await promoteMemberToTrainer(member);
+
+    if (error) {
+      if (
+        error.code === "23505" ||
+        error.message?.toLowerCase().includes("duplicate")
+      ) {
+        alert(
+          `${member.full_name} is already registered as a trainer.`
+        );
+        return;
+      }
+
+      console.error(
+        "Failed to promote member to trainer:",
+        error
+      );
+
+      alert(error.message);
+      return;
+    }
+
+    if (!data) {
+      alert("Trainer profile could not be created.");
+      return;
+    }
+
+    alert(
+      `${member.full_name} has been promoted to Trainer successfully!`
+    );
+
+    await loadMembers();
+  }
 
   async function loadMembers() {
     setLoading(true);
@@ -602,9 +656,9 @@ function Members() {
                           {member.status ===
                             "Active" && (
 
-                            <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white bg-green-500" />
+                              <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white bg-green-500" />
 
-                          )}
+                            )}
 
                         </div>
 
@@ -705,11 +759,10 @@ function Members() {
                     <td className="px-5 py-5">
 
                       <span
-                        className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-bold ${
-                          member.role === "admin"
+                        className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-bold ${member.role === "admin"
                             ? "border-blue-200 bg-blue-50 text-blue-700"
                             : "border-gray-200 bg-gray-50 text-gray-600"
-                        }`}
+                          }`}
                       >
 
                         {member.role === "admin" ? (
@@ -754,15 +807,15 @@ function Members() {
 
                         {member.created_at
                           ? new Date(
-                              member.created_at
-                            ).toLocaleDateString(
-                              "en-GB",
-                              {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              }
-                            )
+                            member.created_at
+                          ).toLocaleDateString(
+                            "en-GB",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )
                           : "—"}
 
                       </div>
@@ -811,41 +864,53 @@ function Members() {
 
                         </button>
 
+                        {/* Trainer */}
+
+                        <button
+                          type="button"
+                          title="Promote to trainer"
+                          onClick={() =>
+                            handlePromoteToTrainer(member)
+                          }
+                          className="flex h-9 w-9 items-center justify-center rounded-xl bg-pink-50 text-pink-600 transition hover:bg-pink-600 hover:text-white"
+                        >
+                          <FaDumbbell />
+                        </button>
+
 
                         {/* Suspend / Activate */}
 
                         {member.status !==
                           "Deleted" && (
 
-                          <button
-                            type="button"
-                            title={
-                              member.status ===
-                              "Active"
-                                ? "Suspend member"
-                                : "Activate member"
-                            }
-                            onClick={() =>
-                              handleSuspend(member)
-                            }
-                            className={`flex h-9 w-9 items-center justify-center rounded-xl transition ${
-                              member.status ===
-                              "Active"
-                                ? "bg-red-50 text-red-600 hover:bg-red-600 hover:text-white"
-                                : "bg-green-50 text-green-600 hover:bg-green-600 hover:text-white"
-                            }`}
-                          >
+                            <button
+                              type="button"
+                              title={
+                                member.status ===
+                                  "Active"
+                                  ? "Suspend member"
+                                  : "Activate member"
+                              }
+                              onClick={() =>
+                                handleSuspend(member)
+                              }
+                              className={`flex h-9 w-9 items-center justify-center rounded-xl transition ${member.status ===
+                                  "Active"
+                                  ? "bg-red-50 text-red-600 hover:bg-red-600 hover:text-white"
+                                  : "bg-green-50 text-green-600 hover:bg-green-600 hover:text-white"
+                                }`}
+                            >
 
-                            {member.status ===
-                            "Active" ? (
-                              <FaUserSlash />
-                            ) : (
-                              <FaUserCheck />
-                            )}
+                              {member.status ===
+                                "Active" ? (
+                                <FaUserSlash />
+                              ) : (
+                                <FaUserCheck />
+                              )}
 
-                          </button>
+                            </button>
 
-                        )}
+                          )}
 
 
                         {/* Delete */}
@@ -924,10 +989,10 @@ function Members() {
 
               {totalMembers > 0
                 ? Math.round(
-                    (activeMembers /
-                      totalMembers) *
-                      100
-                  )
+                  (activeMembers /
+                    totalMembers) *
+                  100
+                )
                 : 0}
               %
 
