@@ -57,10 +57,12 @@ if (profile.status === "Deleted") {
       }
 
       if (profile.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/member");
-      }
+  navigate("/admin");
+} else if (profile.role === "trainer") {
+  navigate("/trainer");
+} else {
+  navigate("/member");
+}
     } catch (err) {
       alert(err.message || "Login failed");
     } finally {

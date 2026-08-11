@@ -38,54 +38,68 @@ function Members() {
     loadMembers();
   }, []);
 
-  async function handlePromoteToTrainer(member) {
-    if (member.status === "Deleted") {
-      alert("Deleted accounts cannot be promoted to trainers.");
-      return;
-    }
+ async function handlePromoteToTrainer(member) {
+  if (!member?.id) {
+    alert("Member ID is missing.");
+    return;
+  }
 
-    const confirmed = window.confirm(
-      `Promote ${member.full_name} to Trainer?\n\n` +
-      `This will create a trainer profile linked to their account.\n\n` +
-      `They will be able to access the Trainer dashboard when they log in.`
-    );
+  const confirmed = window.confirm(
+    `Promote ${member.full_name || "this member"} to trainer?`
+  );
 
-    if (!confirmed) return;
+  if (!confirmed) {
+    return;
+  }
 
-    const { data, error } =
+  try {
+    const result =
       await promoteMemberToTrainer(member);
 
-    if (error) {
-      if (
-        error.code === "23505" ||
-        error.message?.toLowerCase().includes("duplicate")
-      ) {
-        alert(
-          `${member.full_name} is already registered as a trainer.`
-        );
-        return;
-      }
+    console.log(
+      "Promotion result:",
+      result
+    );
 
+    if (result.error) {
       console.error(
-        "Failed to promote member to trainer:",
-        error
+        "Trainer promotion failed:",
+        result.error
       );
 
-      alert(error.message);
+      alert(
+        `Could not promote trainer:\n\n${result.error.message}`
+      );
+
       return;
     }
 
-    if (!data) {
-      alert("Trainer profile could not be created.");
+    if (result.alreadyTrainer) {
+      alert(
+        `${member.full_name || "This member"} is already a trainer.`
+      );
+
+      await loadMembers();
       return;
     }
 
     alert(
-      `${member.full_name} has been promoted to Trainer successfully!`
+      `${member.full_name || "Member"} has been promoted to trainer successfully!`
     );
 
     await loadMembers();
+
+  } catch (error) {
+    console.error(
+      "Unexpected promotion error:",
+      error
+    );
+
+    alert(
+      `Something went wrong:\n\n${error.message}`
+    );
   }
+}
 
   async function loadMembers() {
     setLoading(true);
@@ -759,21 +773,24 @@ function Members() {
                     <td className="px-5 py-5">
 
                       <span
-                        className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-bold ${member.role === "admin"
-                            ? "border-blue-200 bg-blue-50 text-blue-700"
-                            : "border-gray-200 bg-gray-50 text-gray-600"
-                          }`}
-                      >
+  className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
+    member.role === "admin"
+      ? "bg-blue-100 text-blue-700"
+      : member.role === "trainer"
+      ? "bg-pink-100 text-pink-700"
+      : "bg-gray-100 text-gray-700"
+  }`}
+>
+  {member.role === "admin" && "🛡️"}
+  {member.role === "trainer" && "🏋️"}
+  {member.role === "member" && "👥"}
 
-                        {member.role === "admin" ? (
-                          <FaUserShield />
-                        ) : (
-                          <FaUsers />
-                        )}
-
-                        {member.role || "member"}
-
-                      </span>
+  {member.role === "admin"
+    ? "admin"
+    : member.role === "trainer"
+    ? "trainer"
+    : "member"}
+</span>
 
                     </td>
 

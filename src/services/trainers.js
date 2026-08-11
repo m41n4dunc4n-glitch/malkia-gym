@@ -100,35 +100,157 @@ export async function unlinkTrainerFromUser(trainerId) {
    Promote Member To Trainer
 =========================== */
 
+/* ===========================
+   Promote Member To Trainer
+=========================== */
+
+/* ===========================
+   Promote Member To Trainer
+=========================== */
+
 export async function promoteMemberToTrainer(member) {
-  return await supabase
+  if (!member?.id) {
+    return {
+      data: null,
+      error: new Error("Member ID is missing."),
+    };
+  }
+
+  // Check whether this member already has a trainer profile
+  const { data: existingTrainer, error: checkError } =
+    await supabase
+      .from("trainers")
+      .select("id, user_id, name")
+      .eq("user_id", member.id)
+      .maybeSingle();
+
+  if (checkError) {
+    console.error(
+      "Trainer check failed:",
+      checkError
+    );
+
+    return {
+      data: null,
+      error: checkError,
+    };
+  }
+
+  // Already a trainer
+  if (existingTrainer) {
+    return {
+      data: existingTrainer,
+      error: null,
+      alreadyTrainer: true,
+    };
+  }
+
+  const trainerData = {
+    user_id: member.id,
+
+    name:
+      member.full_name ||
+      "New Trainer",
+
+    specialty:
+      "Fitness Trainer",
+
+    experience: 0,
+
+    phone:
+      member.phone || "",
+
+    email:
+      member.email || "",
+
+    bio: "",
+
+    image_url:
+      member.avatar_url || "",
+
+    morning_start: "08:00",
+    morning_end: "12:00",
+
+    lunch_start: "12:00",
+    lunch_end: "14:00",
+
+    evening_start: "14:00",
+    evening_end: "20:00",
+
+    max_clients: 1,
+
+    monday: true,
+    tuesday: true,
+    wednesday: true,
+    thursday: true,
+    friday: true,
+    saturday: true,
+    sunday: false,
+  };
+
+  console.log(
+    "Creating trainer:",
+    trainerData
+  );
+
+  // Create trainer profile
+  const {
+    data: trainer,
+    error: trainerError,
+  } = await supabase
     .from("trainers")
-    .insert([
-      {
-        user_id: member.id,
-        name: member.full_name || "",
-        specialty: "Fitness Trainer",
-        experience: 0,
-        phone: member.phone || "",
-        email: member.email || "",
-        bio: "",
-        image_url: member.avatar_url || "",
-        morning_start: "08:00",
-        morning_end: "12:00",
-        lunch_start: "12:00",
-        lunch_end: "14:00",
-        evening_start: "14:00",
-        evening_end: "20:00",
-        max_clients: 1,
-        monday: true,
-        tuesday: true,
-        wednesday: true,
-        thursday: true,
-        friday: true,
-        saturday: true,
-        sunday: false,
-      },
-    ])
+    .insert([trainerData])
     .select()
     .single();
+
+  if (trainerError) {
+    console.error(
+      "Trainer creation failed:",
+      trainerError
+    );
+
+    return {
+      data: null,
+      error: trainerError,
+    };
+  }
+
+  // Change member role to trainer
+  const {
+    error: roleError,
+  } = await supabase
+    .from("profiles")
+    .update({
+      role: "trainer",
+    })
+    .eq("id", member.id);
+
+  if (roleError) {
+    console.error(
+      "Role update failed:",
+      roleError
+    );
+
+    // Remove trainer profile if role update failed
+    await supabase
+      .from("trainers")
+      .delete()
+      .eq("id", trainer.id);
+
+    return {
+      data: null,
+      error: roleError,
+    };
+  }
+
+  console.log(
+    "Trainer promotion successful:",
+    trainer
+  );
+
+  return {
+    data: trainer,
+    error: null,
+    alreadyTrainer: false,
+  };
 }

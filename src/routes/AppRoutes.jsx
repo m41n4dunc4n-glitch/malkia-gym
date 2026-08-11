@@ -45,6 +45,8 @@ import AdminFeedback from "../pages/Admin/Feedback";
 import Reports from "../pages/Admin/Reports";
 import AdminSettings from "../pages/Admin/Settings";
 
+import Trainer from "../pages/Trainer";
+
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -161,6 +163,24 @@ function AppRoutes() {
           />
 
         </Route>
+
+
+        {/* =========================
+      TRAINER DASHBOARD
+========================== */}
+
+<Route
+  element={
+    <RoleProtectedRoute role="trainer">
+      <Trainer />
+    </RoleProtectedRoute>
+  }
+>
+  <Route
+    path="/trainer"
+    element={null}
+  />
+</Route>
 
         {/* =========================
               ADMIN DASHBOARD
