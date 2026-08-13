@@ -10,27 +10,58 @@ function RoleProtectedRoute({ role, children }) {
   const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
-    async function checkRole() {
-      if (authLoading) return;
+    let mounted = true;
 
-      if (!user) {
-        setLoading(false);
+    async function checkRole() {
+      if (authLoading) {
         return;
       }
 
-      const { data } = await getProfile(user.id);
+      if (!user) {
+        if (mounted) {
+          setAllowed(false);
+          setLoading(false);
+        }
 
-      setAllowed(data?.role === role);
+        return;
+      }
+
+      const { data, error } = await getProfile(user.id);
+
+      if (!mounted) {
+        return;
+      }
+
+      if (error || !data) {
+        console.error("Role check failed:", error);
+
+        setAllowed(false);
+        setLoading(false);
+
+        return;
+      }
+
+      setAllowed(data.role === role);
       setLoading(false);
     }
 
     checkRole();
+
+    return () => {
+      mounted = false;
+    };
   }, [user, role, authLoading]);
 
   if (authLoading || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-xl font-semibold">
-        Loading...
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-pink-600" />
+
+          <p className="font-semibold text-gray-700">
+            Loading...
+          </p>
+        </div>
       </div>
     );
   }
@@ -40,7 +71,26 @@ function RoleProtectedRoute({ role, children }) {
   }
 
   if (!allowed) {
-    return <Navigate to="/" replace />;
+    /*
+      If a member tries /trainer,
+      they go back to their dashboard.
+
+      If a trainer tries /admin,
+      they go back to their dashboard.
+
+      If an admin tries /member,
+      they go back to their dashboard.
+    */
+
+    if (role === "admin") {
+      return <Navigate to="/admin" replace />;
+    }
+
+    if (role === "trainer") {
+      return <Navigate to="/trainer" replace />;
+    }
+
+    return <Navigate to="/member" replace />;
   }
 
   return children;

@@ -17,13 +17,6 @@ export async function getTrainers() {
    Used when a trainer logs into their account.
 ========================================================= */
 
-export async function getTrainerByUserId(userId) {
-  return await supabase
-    .from("trainers")
-    .select("*")
-    .eq("user_id", userId)
-    .maybeSingle();
-}
 
 
 /* =========================================================
@@ -253,4 +246,90 @@ export async function promoteMemberToTrainer(member) {
     error: null,
     alreadyTrainer: false,
   };
+}
+
+export async function updateMyTrainerProfile(
+  userId,
+  trainerData
+) {
+  return await supabase
+    .from("trainers")
+    .update({
+      phone: trainerData.phone,
+      image_url: trainerData.image_url,
+      monday: trainerData.monday,
+      tuesday: trainerData.tuesday,
+      wednesday: trainerData.wednesday,
+      thursday: trainerData.thursday,
+      friday: trainerData.friday,
+      saturday: trainerData.saturday,
+      sunday: trainerData.sunday,
+    })
+    .eq("user_id", userId)
+    .select()
+    .single();
+}
+
+export async function getTrainerByUserId(userId) {
+  return await supabase
+    .from("trainers")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+}
+
+export async function updateTrainerSelf(id, updates) {
+  return await supabase
+    .from("trainers")
+    .update({
+      phone: updates.phone,
+      image_url: updates.image_url,
+      working_days: updates.working_days,
+    })
+    .eq("id", id)
+    .select()
+    .single();
+}
+
+export async function getTrainerBookings(trainerId) {
+  return await supabase
+    .from("bookings")
+    .select(`
+      *,
+      profiles (
+        full_name,
+        email
+      )
+    `)
+    .eq("trainer_id", trainerId)
+    .eq("admin_deleted", false)
+    .order("booking_date", {
+      ascending: true,
+    })
+    .order("booking_time", {
+      ascending: true,
+    });
+}
+
+export async function completeTrainerBooking(id) {
+  return await supabase
+    .from("bookings")
+    .update({
+      status: "Completed",
+    })
+    .eq("id", id)
+    .eq("status", "Approved");
+}
+
+export async function updateTrainerProfile(id, updates) {
+  return await supabase
+    .from("trainers")
+    .update({
+      phone: updates.phone,
+      image_url: updates.image_url,
+      working_days: updates.working_days,
+    })
+    .eq("id", id)
+    .select()
+    .single();
 }

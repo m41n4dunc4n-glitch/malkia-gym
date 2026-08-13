@@ -46,6 +46,9 @@ import Reports from "../pages/Admin/Reports";
 import AdminSettings from "../pages/Admin/Settings";
 
 import Trainer from "../pages/Trainer";
+import TrainerBookings from "../pages/Trainer/Bookings";
+import TrainerProfile from "../pages/Trainer/Profile";
+import TrainerLayout from "../layouts/TrainerLayout";
 
 function AppRoutes() {
   return (
@@ -165,20 +168,30 @@ function AppRoutes() {
         </Route>
 
 
-        {/* =========================
+       {/* =========================
       TRAINER DASHBOARD
 ========================== */}
 
 <Route
   element={
     <RoleProtectedRoute role="trainer">
-      <Trainer />
+      <TrainerLayout />
     </RoleProtectedRoute>
   }
 >
   <Route
     path="/trainer"
-    element={null}
+    element={<Trainer />}
+  />
+
+  <Route
+    path="/trainer/bookings"
+    element={<TrainerBookings />}
+  />
+
+  <Route
+    path="/trainer/profile"
+    element={<TrainerProfile />}
   />
 </Route>
 

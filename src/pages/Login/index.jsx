@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
 import { signIn } from "../../services/auth";
 import { supabase } from "../../services/supabase";
 import { getProfile } from "../../services/profile";
+
 import loginImage from "../../assets/images/pages/login.jpg";
 
 function Login() {
@@ -15,6 +17,8 @@ function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
 
+    if (loading) return;
+
     setLoading(true);
 
     try {
@@ -25,46 +29,101 @@ function Login() {
         return;
       }
 
-      const { data: profile, error: profileError } = await getProfile(
-        data.user.id
-      );
-
-      if (profile.status === "Suspended") {
-
-  await supabase.auth.signOut();
-
-  alert(
-    "Your account has been suspended.\nPlease contact the gym administrator."
-  );
-
-  return;
-}
-
-if (profile.status === "Deleted") {
-
-  await supabase.auth.signOut();
-
-  alert(
-    "This account has been deleted."
-  );
-
-  return;
-}
-
-      if (profileError) {
-        alert(profileError.message);
+      if (!data?.user) {
+        alert("Login failed. No user account was returned.");
         return;
       }
 
+      const { data: profile, error: profileError } =
+        await getProfile(data.user.id);
+
+      /*
+       * IMPORTANT:
+       * Check the profile error/null BEFORE trying to read
+       * profile.status or profile.role.
+       */
+      if (profileError) {
+        console.error("Profile loading error:", profileError);
+
+        await supabase.auth.signOut();
+
+        alert(
+          profileError.message ||
+            "Unable to load your account profile."
+        );
+
+        return;
+      }
+
+      if (!profile) {
+        await supabase.auth.signOut();
+
+        alert(
+          "Your account profile could not be found. Please contact the gym administrator."
+        );
+
+        return;
+      }
+
+      /*
+       * ACCOUNT STATUS
+       */
+
+      if (profile.status === "Suspended") {
+        await supabase.auth.signOut();
+
+        alert(
+          "Your account has been suspended.\nPlease contact the gym administrator."
+        );
+
+        return;
+      }
+
+      if (profile.status === "Deleted") {
+        await supabase.auth.signOut();
+
+        alert("This account has been deleted.");
+
+        return;
+      }
+
+      /*
+       * ROLE REDIRECTION
+       */
+
       if (profile.role === "admin") {
-  navigate("/admin");
-} else if (profile.role === "trainer") {
-  navigate("/trainer");
-} else {
-  navigate("/member");
-}
+        navigate("/admin", { replace: true });
+        return;
+      }
+
+      if (profile.role === "trainer") {
+        navigate("/trainer", { replace: true });
+        return;
+      }
+
+      if (profile.role === "member") {
+        navigate("/member", { replace: true });
+        return;
+      }
+
+      /*
+       * Unknown role
+       */
+
+      console.error("Unknown account role:", profile.role);
+
+      await supabase.auth.signOut();
+
+      alert(
+        "Your account has an invalid role. Please contact the gym administrator."
+      );
     } catch (err) {
-      alert(err.message || "Login failed");
+      console.error("Login error:", err);
+
+      alert(
+        err?.message ||
+          "Login failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -91,19 +150,16 @@ if (profile.status === "Deleted") {
           </p>
 
           <h1 className="text-6xl font-extrabold leading-tight text-white">
-
             Welcome
             <br />
             Back.
-
           </h1>
 
           <p className="mt-8 text-xl leading-9 text-gray-300">
-
-            Continue your fitness journey with
+            Continue your fitness journey with{" "}
             <span className="font-semibold text-white">
-              {" "}Malkia Fitness
-            </span>.
+              Malkia Fitness
+            </span>
 
             <br />
             <br />
@@ -111,7 +167,6 @@ if (profile.status === "Deleted") {
             Train with professional coaches,
             achieve your goals,
             and become the strongest version of yourself.
-
           </p>
 
         </div>
@@ -177,7 +232,7 @@ if (profile.status === "Deleted") {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-pink-600 py-4 font-bold text-white transition hover:bg-pink-700 disabled:opacity-50"
+              className="w-full rounded-xl bg-pink-600 py-4 font-bold text-white transition hover:bg-pink-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? "Logging in..." : "Login"}
             </button>

@@ -14,9 +14,35 @@ function AuthProvider({ children }) {
       return;
     }
 
-    const { data: profile } = await getProfile(session.user.id);
+    const { data: profile, error } = await getProfile(
+      session.user.id
+    );
 
-    if (profile?.status === "Suspended") {
+    if (error) {
+      console.error("Auth profile error:", error);
+
+      setUser(null);
+      setLoading(false);
+
+      return;
+    }
+
+    if (!profile) {
+      console.error("No profile found for authenticated user.");
+
+      await supabase.auth.signOut();
+
+      setUser(null);
+      setLoading(false);
+
+      return;
+    }
+
+    /*
+      Suspended accounts cannot use the system.
+    */
+
+    if (profile.status === "Suspended") {
       await supabase.auth.signOut();
 
       alert(
@@ -25,18 +51,48 @@ function AuthProvider({ children }) {
 
       setUser(null);
       setLoading(false);
+
       return;
     }
+
+    /*
+      Deleted accounts cannot use the system.
+    */
+
+    if (profile.status === "Deleted") {
+      await supabase.auth.signOut();
+
+      alert("This account has been deleted.");
+
+      setUser(null);
+      setLoading(false);
+
+      return;
+    }
+
+    /*
+      Everything is valid.
+
+      We keep the Supabase auth user here.
+      The role is retrieved from profiles whenever
+      authorization needs to be checked.
+    */
 
     setUser(session.user);
     setLoading(false);
   }
 
   useEffect(() => {
+    let mounted = true;
+
     async function loadSession() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
+      if (!mounted) {
+        return;
+      }
 
       await validateSession(session);
     }
@@ -47,11 +103,33 @@ function AuthProvider({ children }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) {
+          return;
+        }
+
+        /*
+          Ignore token refresh noise.
+          The current authenticated user remains valid.
+        */
+
+        if (event === "TOKEN_REFRESHED") {
+          if (session?.user) {
+            setUser(session.user);
+          }
+
+          setLoading(false);
+
+          return;
+        }
+
         await validateSession(session);
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (
