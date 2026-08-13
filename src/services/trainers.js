@@ -321,15 +321,69 @@ export async function completeTrainerBooking(id) {
     .eq("status", "Approved");
 }
 
-export async function updateTrainerProfile(id, updates) {
-  return await supabase
+export async function updateTrainerProfile(trainerId, updates) {
+  const allowedUpdates = {
+    phone: updates.phone,
+    image_url: updates.image_url,
+  };
+
+  const { data, error } = await supabase
     .from("trainers")
-    .update({
-      phone: updates.phone,
-      image_url: updates.image_url,
-      working_days: updates.working_days,
-    })
-    .eq("id", id)
+    .update(allowedUpdates)
+    .eq("id", trainerId)
     .select()
     .single();
+
+  return {
+    data,
+    error,
+  };
+}
+
+export async function uploadTrainerProfilePicture(userId, file) {
+  const extension = file.name.split(".").pop();
+
+  const filePath = `${userId}/profile.${extension}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("trainer-profiles")
+    .upload(filePath, file, {
+      upsert: true,
+      contentType: file.type,
+    });
+
+  if (uploadError) {
+    return {
+      data: null,
+      error: uploadError,
+    };
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage
+    .from("trainer-profiles")
+    .getPublicUrl(filePath);
+
+  return {
+    data: {
+      publicUrl,
+      filePath,
+    },
+    error: null,
+  };
+}
+
+export async function deleteCompletedTrainerBooking(bookingId) {
+  const { data, error } = await supabase
+    .from("bookings")
+    .delete()
+    .eq("id", bookingId)
+    .select()
+    .single();
+
+  return {
+    data,
+    error,
+  };
 }
