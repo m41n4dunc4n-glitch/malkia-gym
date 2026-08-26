@@ -12,17 +12,20 @@ export async function createPayment(payment) {
     };
   }
 
+  const payload = {
+    ...payment,
+    status: payment.status || "Pending",
+  };
+
+  console.log("CREATING PAYMENT:", payload);
+
   return await supabase
     .from("payments")
-    .insert([
-      {
-        ...payment,
-        status: payment.status || "Pending",
-      },
-    ])
+    .insert([payload])
     .select()
     .single();
 }
+
 
 /* =====================================================
    GET MEMBER PAYMENTS
@@ -41,6 +44,7 @@ export async function getMyPayments(userId) {
     .select(`
       *,
       membership_plans (
+        id,
         name,
         price,
         duration
@@ -52,8 +56,9 @@ export async function getMyPayments(userId) {
     });
 }
 
+
 /* =====================================================
-   GET PENDING MEMBER PAYMENT
+   GET PENDING PAYMENT
 ===================================================== */
 
 export async function getPendingPayment(userId) {
@@ -69,6 +74,7 @@ export async function getPendingPayment(userId) {
     .select(`
       *,
       membership_plans (
+        id,
         name,
         price,
         duration
@@ -82,6 +88,7 @@ export async function getPendingPayment(userId) {
     .limit(1)
     .maybeSingle();
 }
+
 
 /* =====================================================
    GET ALL PAYMENTS - ADMIN
@@ -98,6 +105,7 @@ export async function getAllPayments() {
         phone
       ),
       membership_plans (
+        id,
         name,
         price,
         duration
@@ -107,6 +115,7 @@ export async function getAllPayments() {
       ascending: false,
     });
 }
+
 
 /* =====================================================
    ARCHIVE PAYMENT
@@ -122,10 +131,8 @@ async function archivePayment(payment, finalStatus) {
 
   const historyRecord = {
     id: payment.id,
-
     member_id: payment.member_id,
     membership_id: payment.membership_id,
-
     amount: payment.amount,
 
     phone:
@@ -133,7 +140,8 @@ async function archivePayment(payment, finalStatus) {
       payment.profiles?.phone ||
       null,
 
-    mpesa_code: payment.mpesa_code || null,
+    mpesa_code:
+      payment.mpesa_code || null,
 
     status: finalStatus,
 
@@ -150,11 +158,8 @@ async function archivePayment(payment, finalStatus) {
       payment.notes || null,
 
     created_at:
-      payment.created_at || new Date().toISOString(),
-
-    /* ================================================
-       STORED DIRECTLY IN PAYMENT HISTORY
-    ================================================ */
+      payment.created_at ||
+      new Date().toISOString(),
 
     member_name:
       payment.profiles?.full_name || null,
@@ -202,6 +207,7 @@ async function archivePayment(payment, finalStatus) {
     error: null,
   };
 }
+
 
 /* =====================================================
    REMOVE ACTIVE PAYMENT
@@ -251,6 +257,7 @@ async function removeActivePayment(paymentId) {
   };
 }
 
+
 /* =====================================================
    APPROVE PAYMENT
 ===================================================== */
@@ -277,8 +284,16 @@ export async function approvePayment(payment) {
     };
   }
 
+  console.log("==========================================");
+  console.log("APPROVING PAYMENT");
+  console.log("Payment ID:", payment.id);
+  console.log("Member ID:", payment.member_id);
+  console.log("Membership ID:", payment.membership_id);
+  console.log("==========================================");
+
+
   /* ===================================================
-     1. GET COMPLETE PAYMENT INFORMATION
+     1. GET PAYMENT
   =================================================== */
 
   const {
@@ -294,13 +309,14 @@ export async function approvePayment(payment) {
         phone
       ),
       membership_plans (
+        id,
         name,
         price,
         duration
       )
     `)
     .eq("id", payment.id)
-    .single();
+    .maybeSingle();
 
   if (fetchError) {
     console.error(
@@ -314,8 +330,23 @@ export async function approvePayment(payment) {
     };
   }
 
+  if (!existingPayment) {
+    return {
+      data: null,
+      error: new Error(
+        "Payment could not be found."
+      ),
+    };
+  }
+
+  console.log(
+    "EXISTING PAYMENT:",
+    existingPayment
+  );
+
+
   /* ===================================================
-     2. UPDATE PAYMENT STATUS
+     2. APPROVE PAYMENT
   =================================================== */
 
   const {
@@ -335,12 +366,13 @@ export async function approvePayment(payment) {
         phone
       ),
       membership_plans (
+        id,
         name,
         price,
         duration
       )
     `)
-    .single();
+    .maybeSingle();
 
   if (paymentError) {
     console.error(
@@ -354,9 +386,44 @@ export async function approvePayment(payment) {
     };
   }
 
+  if (!approvedPayment) {
+    return {
+      data: null,
+      error: new Error(
+        "Payment status could not be updated."
+      ),
+    };
+  }
+
+  console.log(
+    "PAYMENT STATUS UPDATED:",
+    approvedPayment
+  );
+
+
   /* ===================================================
      3. ACTIVATE MEMBER
   =================================================== */
+
+  const membershipStartedAt =
+    new Date().toISOString();
+
+  console.log("==========================================");
+  console.log("ACTIVATING MEMBER");
+  console.log(
+    "Member ID:",
+    existingPayment.member_id
+  );
+  console.log(
+    "Membership ID:",
+    existingPayment.membership_id
+  );
+  console.log(
+    "Started At:",
+    membershipStartedAt
+  );
+  console.log("==========================================");
+
 
   const {
     data: activatedProfile,
@@ -370,11 +437,27 @@ export async function approvePayment(payment) {
       status: "Active",
 
       membership_started_at:
-        new Date().toISOString(),
+        membershipStartedAt,
     })
     .eq("id", existingPayment.member_id)
-    .select()
-    .single();
+    .select(`
+      id,
+      full_name,
+      email,
+      phone,
+      role,
+      membership_id,
+      status,
+      membership_started_at,
+      membership_plans (
+        id,
+        name,
+        price,
+        duration
+      )
+    `)
+    .maybeSingle();
+
 
   if (profileError) {
     console.error(
@@ -385,10 +468,52 @@ export async function approvePayment(payment) {
     return {
       data: null,
       error: new Error(
-        `Payment was approved, but the member could not be activated: ${profileError.message}`
+        `Payment was approved, but the member profile could not be updated: ${profileError.message}`
       ),
     };
   }
+
+
+  /*
+    VERY IMPORTANT:
+
+    If RLS prevents the admin from updating the
+    member, Supabase can return no row.
+
+    We explicitly detect that here.
+  */
+
+  if (!activatedProfile) {
+    console.error(
+      "PROFILE UPDATE RETURNED NO ROW"
+    );
+
+    return {
+      data: null,
+      error: new Error(
+        "Payment was approved, but the member profile was not updated. Check the profiles UPDATE RLS policy for administrators."
+      ),
+    };
+  }
+
+
+  console.log("==========================================");
+  console.log("MEMBER PROFILE UPDATED");
+  console.log("PROFILE:", activatedProfile);
+  console.log(
+    "membership_id:",
+    activatedProfile.membership_id
+  );
+  console.log(
+    "membership_plans:",
+    activatedProfile.membership_plans
+  );
+  console.log(
+    "membership_started_at:",
+    activatedProfile.membership_started_at
+  );
+  console.log("==========================================");
+
 
   /* ===================================================
      4. ARCHIVE PAYMENT
@@ -416,13 +541,16 @@ export async function approvePayment(payment) {
     };
   }
 
+
   /* ===================================================
-     5. REMOVE FROM ACTIVE PAYMENTS
+     5. REMOVE ACTIVE PAYMENT
   =================================================== */
 
   const {
     error: deleteError,
-  } = await removeActivePayment(payment.id);
+  } = await removeActivePayment(
+    payment.id
+  );
 
   if (deleteError) {
     console.error(
@@ -438,9 +566,19 @@ export async function approvePayment(payment) {
     };
   }
 
+
   /* ===================================================
-     6. SUCCESS
+     6. FINAL SUCCESS
   =================================================== */
+
+  console.log("==========================================");
+  console.log("PAYMENT APPROVAL COMPLETE");
+  console.log("MEMBER ACTIVATED");
+  console.log(
+    "Membership:",
+    activatedProfile.membership_plans?.name
+  );
+  console.log("==========================================");
 
   return {
     data: {
@@ -451,6 +589,7 @@ export async function approvePayment(payment) {
     error: null,
   };
 }
+
 
 /* =====================================================
    REJECT PAYMENT
@@ -469,8 +608,9 @@ export async function rejectPayment(payment) {
     };
   }
 
+
   /* ===================================================
-     1. GET COMPLETE PAYMENT
+     1. GET PAYMENT
   =================================================== */
 
   const {
@@ -486,13 +626,14 @@ export async function rejectPayment(payment) {
         phone
       ),
       membership_plans (
+        id,
         name,
         price,
         duration
       )
     `)
     .eq("id", paymentId)
-    .single();
+    .maybeSingle();
 
   if (fetchError) {
     console.error(
@@ -505,6 +646,16 @@ export async function rejectPayment(payment) {
       error: fetchError,
     };
   }
+
+  if (!existingPayment) {
+    return {
+      data: null,
+      error: new Error(
+        "Payment could not be found."
+      ),
+    };
+  }
+
 
   /* ===================================================
      2. ARCHIVE AS REJECTED
@@ -519,11 +670,6 @@ export async function rejectPayment(payment) {
   );
 
   if (historyError) {
-    console.error(
-      "REJECTED PAYMENT ARCHIVE ERROR:",
-      historyError
-    );
-
     return {
       data: null,
       error: new Error(
@@ -531,6 +677,7 @@ export async function rejectPayment(payment) {
       ),
     };
   }
+
 
   /* ===================================================
      3. REMOVE ACTIVE PAYMENT
@@ -543,11 +690,6 @@ export async function rejectPayment(payment) {
   );
 
   if (deleteError) {
-    console.error(
-      "REJECTED PAYMENT DELETE ERROR:",
-      deleteError
-    );
-
     return {
       data: null,
       error: new Error(
@@ -556,15 +698,13 @@ export async function rejectPayment(payment) {
     };
   }
 
-  /* ===================================================
-     4. SUCCESS
-  =================================================== */
 
   return {
     data: historyPayment,
     error: null,
   };
 }
+
 
 /* =====================================================
    GET ONE PAYMENT
@@ -583,6 +723,7 @@ export async function getPayment(id) {
     .select(`
       *,
       membership_plans (
+        id,
         name,
         price,
         duration
@@ -591,6 +732,7 @@ export async function getPayment(id) {
     .eq("id", id)
     .maybeSingle();
 }
+
 
 /* =====================================================
    UPLOAD PAYMENT RECEIPT
@@ -624,6 +766,7 @@ export async function uploadReceipt(file, userId) {
   const fileName =
     `${userId}-${Date.now()}.${fileExt}`;
 
+
   const {
     data,
     error,
@@ -650,11 +793,14 @@ export async function uploadReceipt(file, userId) {
     };
   }
 
+
   const {
     data: publicUrlData,
-  } = supabase.storage
-    .from("payment-receipts")
-    .getPublicUrl(data.path);
+  } =
+    supabase.storage
+      .from("payment-receipts")
+      .getPublicUrl(data.path);
+
 
   return {
     data: {

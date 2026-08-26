@@ -1,25 +1,81 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getMembershipPlans } from "../../services/membership";
 import { updateProfile } from "../../services/profile";
 
 function MemberModal({ member, onClose, onUpdated }) {
+  const [plans, setPlans] = useState([]);
+  const [saving, setSaving] = useState(false);
+
   const [form, setForm] = useState({
     full_name: member.full_name || "",
     phone: member.phone || "",
     gender: member.gender || "",
     date_of_birth: member.date_of_birth || "",
+    membership_id: member.membership_id
+      ? String(member.membership_id)
+      : "",
   });
 
+  useEffect(() => {
+    async function loadPlans() {
+      const { data, error } = await getMembershipPlans();
+
+      if (error) {
+        console.error("Failed to load membership plans:", error);
+        return;
+      }
+
+      setPlans(data || []);
+    }
+
+    loadPlans();
+  }, []);
+
+  function handleChange(e) {
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
+
   async function handleSave() {
-    const { error } = await updateProfile(member.id, form);
+    setSaving(true);
+
+    const updates = {
+      full_name: form.full_name,
+      phone: form.phone,
+      gender: form.gender,
+      date_of_birth: form.date_of_birth,
+      membership_id: form.membership_id
+        ? Number(form.membership_id)
+        : null,
+
+      // If membership is selected, start it now.
+      // If membership is removed, clear the start date.
+      membership_started_at: form.membership_id
+        ? member.membership_started_at ||
+          new Date().toISOString()
+        : null,
+    };
+
+    const { error } = await updateProfile(
+      member.id,
+      updates
+    );
+
+    setSaving(false);
 
     if (error) {
+      console.error("MEMBER UPDATE ERROR:", error);
       alert(error.message);
       return;
     }
 
     alert("Member updated successfully!");
 
-    onUpdated();
+    await onUpdated();
     onClose();
   }
 
@@ -35,13 +91,10 @@ function MemberModal({ member, onClose, onUpdated }) {
           <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
 
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-pink-600 text-3xl font-bold text-white">
-
               {member.full_name?.charAt(0).toUpperCase()}
-
             </div>
 
             <div>
-
               <h2 className="text-2xl font-bold sm:text-3xl">
                 {member.full_name}
               </h2>
@@ -49,7 +102,6 @@ function MemberModal({ member, onClose, onUpdated }) {
               <p className="mt-1 break-all text-gray-500">
                 {member.email}
               </p>
-
             </div>
 
           </div>
@@ -111,9 +163,13 @@ function MemberModal({ member, onClose, onUpdated }) {
 
               <Info
                 label="Joined"
-                value={new Date(
+                value={
                   member.created_at
-                ).toLocaleDateString()}
+                    ? new Date(
+                        member.created_at
+                      ).toLocaleDateString()
+                    : "-"
+                }
               />
 
             </div>
@@ -130,114 +186,135 @@ function MemberModal({ member, onClose, onUpdated }) {
 
             <div className="space-y-5">
 
-              <div>
+              {/* Full Name */}
 
+              <div>
                 <label className="mb-2 block font-semibold">
                   Full Name
                 </label>
 
                 <input
+                  name="full_name"
                   value={form.full_name}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      full_name: e.target.value,
-                    })
-                  }
+                  onChange={handleChange}
                   className="w-full rounded-xl border p-4 focus:border-pink-500 focus:outline-none"
                 />
-
               </div>
 
-              <div>
+              {/* Phone */}
 
+              <div>
                 <label className="mb-2 block font-semibold">
                   Phone Number
                 </label>
 
                 <input
+                  name="phone"
                   value={form.phone}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      phone: e.target.value,
-                    })
-                  }
+                  onChange={handleChange}
                   className="w-full rounded-xl border p-4 focus:border-pink-500 focus:outline-none"
                 />
-
               </div>
 
-              <div>
+              {/* Gender */}
 
+              <div>
                 <label className="mb-2 block font-semibold">
                   Gender
                 </label>
 
                 <select
+                  name="gender"
                   value={form.gender}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      gender: e.target.value,
-                    })
-                  }
+                  onChange={handleChange}
                   className="w-full rounded-xl border p-4 focus:border-pink-500 focus:outline-none"
                 >
                   <option value="">
                     Select Gender
                   </option>
 
-                  <option>
+                  <option value="Male">
                     Male
                   </option>
 
-                  <option>
+                  <option value="Female">
                     Female
                   </option>
 
-                  <option>
+                  <option value="Prefer not to say">
                     Prefer not to say
                   </option>
-
                 </select>
-
               </div>
 
-              <div>
+              {/* Date of Birth */}
 
+              <div>
                 <label className="mb-2 block font-semibold">
                   Date of Birth
                 </label>
 
                 <input
                   type="date"
+                  name="date_of_birth"
                   value={form.date_of_birth}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      date_of_birth: e.target.value,
-                    })
-                  }
+                  onChange={handleChange}
                   className="w-full rounded-xl border p-4 focus:border-pink-500 focus:outline-none"
                 />
-
               </div>
+
+              {/* MEMBERSHIP */}
+
+              <div>
+                <label className="mb-2 block font-semibold">
+                  Membership Plan
+                </label>
+
+                <select
+                  name="membership_id"
+                  value={form.membership_id}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border p-4 focus:border-pink-500 focus:outline-none"
+                >
+
+                  <option value="">
+                    No Membership
+                  </option>
+
+                  {plans.map((plan) => (
+                    <option
+                      key={plan.id}
+                      value={plan.id}
+                    >
+                      {plan.name} — KSh{" "}
+                      {Number(plan.price).toLocaleString()} /{" "}
+                      {plan.duration} days
+                    </option>
+                  ))}
+
+                </select>
+              </div>
+
+              {/* Buttons */}
 
               <div className="flex flex-col gap-4 pt-2 sm:flex-row">
 
                 <button
                   onClick={onClose}
-                  className="flex-1 rounded-xl bg-gray-200 py-4 font-semibold hover:bg-gray-300"
+                  disabled={saving}
+                  className="flex-1 rounded-xl bg-gray-200 py-4 font-semibold hover:bg-gray-300 disabled:opacity-50"
                 >
                   Cancel
                 </button>
 
                 <button
                   onClick={handleSave}
-                  className="flex-1 rounded-xl bg-pink-600 py-4 font-bold text-white transition hover:bg-pink-700"
+                  disabled={saving}
+                  className="flex-1 rounded-xl bg-pink-600 py-4 font-bold text-white transition hover:bg-pink-700 disabled:opacity-50"
                 >
-                  Save Changes
+                  {saving
+                    ? "Saving..."
+                    : "Save Changes"}
                 </button>
 
               </div>

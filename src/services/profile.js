@@ -1,26 +1,58 @@
 import { supabase } from "./supabase";
 
-/* Get one profile */
+/* =====================================================
+   GET ONE PROFILE
+===================================================== */
+
 export async function getProfile(id) {
+  if (!id) {
+    return {
+      data: null,
+      error: new Error("User ID is missing."),
+    };
+  }
+
   return await supabase
     .from("profiles")
     .select(`
       *,
-      membership_plans(
+      membership_plans (
         id,
         name,
         price,
-        duration
+        duration,
+        description
       )
     `)
     .eq("id", id)
     .single();
 }
 
-/* Update profile */
+/* =====================================================
+   UPDATE PROFILE
+===================================================== */
+
 export async function updateProfile(id, updates) {
+  if (!id) {
+    return {
+      data: null,
+      error: new Error("User ID is missing."),
+    };
+  }
+
   return await supabase
     .from("profiles")
     .update(updates)
-    .eq("id", id);
+    .eq("id", id)
+    .select(`
+      *,
+      membership_plans (
+        id,
+        name,
+        price,
+        duration,
+        description
+      )
+    `)
+    .single();
 }
