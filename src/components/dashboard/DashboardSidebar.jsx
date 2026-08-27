@@ -54,6 +54,11 @@ function DashboardSidebar({
       path: "/member/bookings",
     },
     {
+      name: "Booking History",
+      icon: <FaHistory />,
+      path: "/member/history",
+    },
+    {
       name: "Payments",
       icon: <FaCreditCard />,
       path: "/member/payments",
@@ -67,11 +72,6 @@ function DashboardSidebar({
       name: "Feedback",
       icon: <FaCommentDots />,
       path: "/member/feedback",
-    },
-    {
-      name: "Booking History",
-      icon: <FaHistory />,
-      path: "/member/history",
     },
     {
       name: "Settings",

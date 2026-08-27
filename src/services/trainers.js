@@ -312,13 +312,51 @@ export async function getTrainerBookings(trainerId) {
 }
 
 export async function completeTrainerBooking(id) {
-  return await supabase
+  // First check what Supabase sees for this booking
+  const { data: booking, error: checkError } = await supabase
+    .from("bookings")
+    .select("id, status, trainer_id")
+    .eq("id", id)
+    .maybeSingle();
+
+  console.log("BOOKING BEFORE COMPLETE:", booking);
+  console.log("CHECK ERROR:", checkError);
+
+  if (checkError) {
+    return {
+      data: null,
+      error: checkError,
+    };
+  }
+
+  if (!booking) {
+    return {
+      data: null,
+      error: new Error("Booking not found."),
+    };
+  }
+
+  console.log("DATABASE STATUS:", booking.status);
+
+  // Don't require Approved here.
+  const { data, error } = await supabase
     .from("bookings")
     .update({
       status: "Completed",
     })
     .eq("id", id)
-    .eq("status", "Approved");
+    .select()
+    .maybeSingle();
+
+  console.log("COMPLETE BOOKING RESULT:", {
+    data,
+    error,
+  });
+
+  return {
+    data,
+    error,
+  };
 }
 
 export async function updateTrainerProfile(trainerId, updates) {

@@ -141,6 +141,11 @@ function AppRoutes() {
           />
 
           <Route
+            path="/member/history"
+            element={<History />}
+          />
+
+          <Route
             path="/member/payments"
             element={<MemberPayments />}
           />
@@ -156,11 +161,6 @@ function AppRoutes() {
           />
 
           <Route
-            path="/member/history"
-            element={<History />}
-          />
-
-          <Route
             path="/member/settings"
             element={<MemberSettings />}
           />
@@ -168,32 +168,32 @@ function AppRoutes() {
         </Route>
 
 
-       {/* =========================
+        {/* =========================
       TRAINER DASHBOARD
 ========================== */}
 
-<Route
-  element={
-    <RoleProtectedRoute role="trainer">
-      <TrainerLayout />
-    </RoleProtectedRoute>
-  }
->
-  <Route
-    path="/trainer"
-    element={<Trainer />}
-  />
+        <Route
+          element={
+            <RoleProtectedRoute role="trainer">
+              <TrainerLayout />
+            </RoleProtectedRoute>
+          }
+        >
+          <Route
+            path="/trainer"
+            element={<Trainer />}
+          />
 
-  <Route
-    path="/trainer/bookings"
-    element={<TrainerBookings />}
-  />
+          <Route
+            path="/trainer/bookings"
+            element={<TrainerBookings />}
+          />
 
-  <Route
-    path="/trainer/profile"
-    element={<TrainerProfile />}
-  />
-</Route>
+          <Route
+            path="/trainer/profile"
+            element={<TrainerProfile />}
+          />
+        </Route>
 
         {/* =========================
               ADMIN DASHBOARD

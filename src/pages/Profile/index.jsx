@@ -80,9 +80,9 @@ function Profile() {
 
       const fileExt = file.name.split(".").pop();
 
-      const fileName = `${user.id}.${fileExt}`;
+      const fileName = `profile.${fileExt}`;
 
-      const filePath = `profile-images/${fileName}`;
+const filePath = `${user.id}/${fileName}`;
 
       const { error: uploadError } =
         await supabase.storage

@@ -66,7 +66,7 @@ function TrainerBookings() {
 
     const interval = setInterval(() => {
       loadBookings();
-    }, 10000);
+    }, 100000);
 
     return () => clearInterval(interval);
   }, [user?.id, loadBookings]);
